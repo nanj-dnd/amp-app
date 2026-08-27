@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1512" viewBox="0 0 1080 1512" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#0B3F2C"/>
+      <stop offset="1" stop-color="#186D4C"/>
+    </linearGradient>
+    <clipPath id="card"><rect x="0" y="0" width="1080" height="1512" rx="59"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="1080" height="1512" fill="url(#ground)"/>
+
+    <!-- the road, receding -->
+    <path d="M 486 786 L 594 786 L 1274 1512 L -194 1512 Z" fill="#FFFFFF" opacity="0.028"/>
+    <path d="M 540 832 L 540 1512" stroke="#FFFFFF" stroke-width="15" stroke-dasharray="59 76" opacity="0.05"/>
+
+    <!-- mark: two carriageways meeting at a vanishing point -->
+    <g transform="translate(75,69) scale(0.8100)">
+      <path d="M 48.5 3 L 2.4 86 Q 1.2 89.6 4.6 87.8 L 47.8 71.5 Z" fill="#FFFFFF"/>
+      <path d="M 51.5 3 L 97.6 86 Q 98.8 89.6 95.4 87.8 L 52.2 71.5 Z" fill="#FFFFFF"/>
+    </g>
+    <text x="178" y="142" font-size="78" font-weight="800" letter-spacing="-4.3" fill="#FFFFFF">amp</text>
+
+    <rect x="859" y="84" width="146" height="63" rx="31" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="2"/>
+    <text x="932" y="127" font-size="36" font-weight="700" letter-spacing="0.6" fill="#FFFFFF" text-anchor="middle">u17</text>
+
+    <!-- the number -->
+    <text x="540" y="529" font-size="389" font-weight="800" letter-spacing="-24" fill="#FFFFFF" text-anchor="middle">62</text>
+
+    <rect x="443" y="562" width="194" height="73" rx="37" fill="#D18A1E"/>
+    <text x="540" y="612" font-size="41" font-weight="800" letter-spacing="1" fill="#0B3F2C" text-anchor="middle">fair</text>
+
+    <text x="540" y="718" font-size="63" font-weight="800" fill="#FFFFFF" text-anchor="middle">anshul yemul</text>
+    <text x="540" y="768" font-size="39" font-weight="500" fill="#FFFFFF" fill-opacity="0.66" text-anchor="middle">bowling · district</text>
+
+    <!-- one bar, three parts -->
+    <rect x="75" y="929" width="930" height="23" rx="12" fill="#FFFFFF" fill-opacity="0.16"/>
+    <rect x="75" y="929" width="635" height="23" rx="12" fill="#FFFFFF" fill-opacity="1.00"/>
+    <rect x="714" y="929" width="291" height="23" rx="12" fill="#FFFFFF" fill-opacity="0.70"/>
+    <text x="75" y="1010" font-size="52" font-weight="700" fill="#FFFFFF" fill-opacity="1" text-anchor="start">63</text>
+    <text x="75" y="1050" font-size="32" font-weight="500" fill="#FFFFFF" fill-opacity="0.55" text-anchor="start">report 55%</text>
+    <text x="540" y="1010" font-size="52" font-weight="700" fill="#FFFFFF" fill-opacity="1" text-anchor="middle">60</text>
+    <text x="540" y="1050" font-size="32" font-weight="500" fill="#FFFFFF" fill-opacity="0.55" text-anchor="middle">game iq 25%</text>
+    <text x="1005" y="1010" font-size="52" font-weight="700" fill="#FFFFFF" fill-opacity="0.42" text-anchor="end">—</text>
+    <text x="1005" y="1050" font-size="32" font-weight="500" fill="#FFFFFF" fill-opacity="0.55" text-anchor="end">coaching 20%</text>
+
+    <rect x="75" y="1179" width="930" height="124" rx="28" fill="#FFFFFF" fill-opacity="0.10"/>
+    <rect x="75" y="1179" width="4" height="124" fill="#D18A1E"/>
+    <text x="118" y="1224" font-size="30" font-weight="600" letter-spacing="0.8" fill="#FFFFFF" fill-opacity="0.6">strongest</text>
+    <text x="118" y="1274" font-size="43" font-weight="700" fill="#FFFFFF">follow through extension &amp; balance</text>
+
+    <text x="540" y="1437" font-size="32" font-weight="600" letter-spacing="1.2" fill="#FFFFFF" fill-opacity="0.45" text-anchor="middle">tryamp.in</text>
+  </g>
+</svg>
