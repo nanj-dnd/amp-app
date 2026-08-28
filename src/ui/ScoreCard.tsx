@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { Text } from './Text';
 import { VectorMark } from './Logo';
-import { font, space, radius, bandFor, bandLabel, light } from '../theme';
+import { font, space, radius, bandFor, light } from '../theme';
 import { shares, type Component } from '../ampScore';
 
 /**
@@ -117,19 +117,16 @@ export function ScoreCard({ name, discipline, club, ageBand, score, components: 
           >
             {score === null ? '—' : String(score)}
           </Text>
+          {/* a rule in the band colour instead of a word for it */}
           <View
             style={{
-              marginTop: width * 0.02,
-              paddingHorizontal: width * 0.045,
-              paddingVertical: width * 0.016,
-              borderRadius: radius.pill,
+              marginTop: width * 0.03,
+              width: width * 0.16,
+              height: width * 0.014,
+              borderRadius: width * 0.007,
               backgroundColor: accent,
             }}
-          >
-            <Text style={{ fontFamily: font.black, fontSize: width * 0.038, letterSpacing: 1, color: GREEN_TOP }}>
-              {score === null ? 'unrated' : bandLabel[band]}
-            </Text>
-          </View>
+          />
         </View>
 
         <View style={{ gap: width * 0.04 }}>

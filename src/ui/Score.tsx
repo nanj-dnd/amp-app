@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { useColors, bandFor, bandLabel, radius, space, type } from '../theme';
+import { useColors, bandFor, radius, space, type } from '../theme';
 import { Text } from './Text';
 
 /**
@@ -9,35 +9,24 @@ import { Text } from './Text';
  * the old design coloured the number itself, which made every screen look
  * like it was permanently mid-warning.
  */
+/**
+ * the score, coloured by band. there is no word for the band any more —
+ * "fair" under a 66 was the number said twice, and the colour already carries
+ * it everywhere else on the screen.
+ */
 export function ScoreBadge({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
   const c = useColors();
-  const band = bandFor(value);
   return (
-    <View style={{ alignItems: 'flex-end' }}>
-      <Text variant={size === 'sm' ? 'scoreSm' : 'score'}>{String(value)}</Text>
-      <BandPill band={band} />
-    </View>
+    <Text variant={size === 'sm' ? 'scoreSm' : 'score'} color={c.score[bandFor(value)]}>
+      {String(value)}
+    </Text>
   );
 }
 
-export function BandPill({ band }: { band: ReturnType<typeof bandFor> }) {
+/** a bare dot in the band colour, where a marker is needed without a number. */
+export function BandDot({ band, size = 8 }: { band: ReturnType<typeof bandFor>; size?: number }) {
   const c = useColors();
-  const tone = c.score[band];
-  return (
-    <View
-      style={{
-        marginTop: 2,
-        paddingHorizontal: space.sm,
-        paddingVertical: 3,
-        borderRadius: radius.pill,
-        backgroundColor: tone + '1A',
-      }}
-    >
-      <Text variant="eyebrow" color={tone}>
-        {bandLabel[band]}
-      </Text>
-    </View>
-  );
+  return <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.score[band] }} />;
 }
 
 /** hero ring for progress + profile. stroke colour follows the band. */
@@ -74,7 +63,9 @@ export function ScoreRing({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      <Text style={{ ...type.score, fontSize: size * 0.34, lineHeight: size * 0.36 }}>{String(value)}</Text>
+      <Text style={{ ...type.score, fontSize: size * 0.34, lineHeight: size * 0.36, color: c.score[band] }}>
+        {String(value)}
+      </Text>
       {caption && (
         <Text variant="caption" tone="secondary" style={{ marginTop: 2 }}>
           {caption}

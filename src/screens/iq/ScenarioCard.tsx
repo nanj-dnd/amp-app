@@ -84,18 +84,14 @@ export function ScenarioCard({
             }}
           />
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text variant="tab" tone="tertiary" style={{ flex: 1 }}>
-            {settled ? 'answer locked' : 'answer before the bar runs out'}
-          </Text>
-          <Text
-            variant="caption"
-            color={urgent ? c.score.poor : c.textTertiary}
-            style={{ fontFamily: font.bold }}
-          >
-            {`${Math.ceil(tick)}s`}
-          </Text>
-        </View>
+        {/* a draining bar and a countdown do not also need a sentence */}
+        <Text
+          variant="caption"
+          color={urgent ? c.score.poor : c.textTertiary}
+          style={{ fontFamily: font.bold, alignSelf: 'flex-end' }}
+        >
+          {`${Math.ceil(tick)}s`}
+        </Text>
       </View>
 
       {/* the situation */}

@@ -103,7 +103,7 @@ export function Onboarding() {
           keyboardShouldPersistTaps="handled"
         >
           {stage === 'identity' && (
-            <Q title={`nice to meet you`} sub="four things, one screen. we use height and weight to read your body angles from video.">
+            <Q title="the basics" sub="height and weight let us read your body angles from video.">
               <View style={{ gap: space.xl }}>
                 <Field label="name">
                   <Input value={p.name} onChangeText={(name) => patch({ name })} placeholder="your name" />
@@ -448,7 +448,7 @@ function Ready({ profile, onDone }: { profile: AthleteProfile; onDone: () => voi
     >
       <LogoMark size={52} />
       <Text variant="title" align="center">
-        {`building ${profile.name.split(' ')[0].toLowerCase()}'s road`}
+        building your road
       </Text>
       <View style={{ gap: space.md, alignSelf: 'stretch' }}>
         {BUILD_STEPS.map((s, i) => (

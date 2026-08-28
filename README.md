@@ -339,6 +339,10 @@ generic bodybuilding split.
 
 ## design notes
 
+**your own name doesn't appear on your own screens.** it was the same word on
+every row of the session list and on a report only you can see. it survives in
+one place — the share card, which is the only thing that leaves the phone.
+
 **lowercase.** `<Text>` lowercases by default. `preserveCase` is for proper
 nouns (the advisor's name) and option letters (A/B/C/D) only.
 

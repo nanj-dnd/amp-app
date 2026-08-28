@@ -161,12 +161,9 @@ export function RoadScreen({ go }: { go: (r: string) => void }) {
           <View style={{ paddingHorizontal: space.gutter, paddingTop: space.xl }}>
             <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
               <Ionicons name="arrow-forward-circle-outline" size={20} color={c.textTertiary} />
-              <View style={{ flex: 1 }}>
-                <Text variant="tab" tone="tertiary">
-                  up next
-                </Text>
-                <Text variant="callout">{`week ${plan[currentIdx + 1].index} · ${plan[currentIdx + 1].focus}`}</Text>
-              </View>
+              <Text variant="callout" style={{ flex: 1 }} numberOfLines={1}>
+                {`next · ${plan[currentIdx + 1].focus}`}
+              </Text>
             </Card>
           </View>
         )}

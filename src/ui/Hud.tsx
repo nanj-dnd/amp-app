@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useColors, space, radius, bandFor, bandLabel, font } from '../theme';
+import { useColors, space, radius, bandFor, font } from '../theme';
 import { Text } from './Text';
 import { Touch } from './Pressable';
 import { useStore } from '../state/store';
@@ -59,14 +59,9 @@ export function Hud({ onScorePress, onAsk }: { onScorePress?: () => void; onAsk?
         >
           {rated ? String(g.ampScore) : '—'}
         </Text>
-        <View>
-          <Text variant="tab" tone="tertiary">
-            amp score
-          </Text>
-          <Text variant="tab" tone="secondary">
-            {rated ? bandLabel[band] : 'not rated yet'}
-          </Text>
-        </View>
+        <Text variant="tab" tone="tertiary">
+          amp score
+        </Text>
       </Touch>
 
       <View style={{ flex: 1 }} />

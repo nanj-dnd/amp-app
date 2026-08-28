@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Text } from './Text';
-import { useColors, font, bandFor, bandLabel, space } from '../theme';
+import { useColors, font, bandFor, space } from '../theme';
 
 /** polar point on the dial's arc. */
 function pt(cx: number, cy: number, r: number, deg: number) {
@@ -66,24 +66,18 @@ export function ScoreDial({
         )}
       </Svg>
 
-      <View style={{ alignItems: 'center' }}>
-        {/* the numeral's line box is taller than its glyphs, so the band label
-            needs an explicit line height rather than sitting in the overhang */}
-        <Text
-          style={{
-            fontFamily: font.black,
-            fontSize: size * 0.28,
-            lineHeight: size * 0.3,
-            letterSpacing: -2,
-            color: c.text,
-          }}
-        >
-          {String(value)}
-        </Text>
-        <Text variant="eyebrow" color={c.score[band]} style={{ marginTop: 2 }}>
-          {bandLabel[band]}
-        </Text>
-      </View>
+      {/* the arc and the numeral are both the band colour; there is no word */}
+      <Text
+        style={{
+          fontFamily: font.black,
+          fontSize: size * 0.3,
+          lineHeight: size * 0.32,
+          letterSpacing: -2,
+          color: c.score[band],
+        }}
+      >
+        {String(value)}
+      </Text>
 
       {caption && (
         <Text variant="caption" tone="tertiary" style={{ position: 'absolute', bottom: 0 }}>

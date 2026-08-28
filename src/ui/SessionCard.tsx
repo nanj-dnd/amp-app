@@ -7,15 +7,17 @@ import { Touch } from './Pressable';
 import { ScoreBadge } from './Score';
 import { useColors, space } from '../theme';
 
+/**
+ * one session. it doesn't carry a name — this is your own list, so the name was
+ * the same word on every row.
+ */
 export function SessionCard({
-  player,
   kind,
   when,
   score,
   onPress,
   onDelete,
 }: {
-  player: string;
   kind: string;
   when: string;
   score: number;
@@ -26,11 +28,8 @@ export function SessionCard({
   return (
     <Card onPress={onPress} padded={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: space.xl, gap: space.md }}>
-        <View style={{ flex: 1, gap: 3 }}>
-          <Text variant="eyebrow" tone="tertiary">
-            {kind}
-          </Text>
-          <Text variant="bodyStrong">{player}</Text>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text variant="bodyStrong">{kind}</Text>
           <Text variant="caption" tone="secondary">
             {when}
           </Text>

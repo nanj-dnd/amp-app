@@ -135,7 +135,7 @@ export function ShareCardScreen({ onClose }: { onClose: () => void }) {
             </View>
           ))}
           <Text variant="caption" tone="tertiary">
-            components you haven't used yet are left out of the average rather than counted as zero.
+            unused components are left out of the average, not counted as zero.
           </Text>
         </View>
       </ScrollView>

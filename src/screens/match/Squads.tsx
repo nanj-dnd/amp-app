@@ -147,7 +147,7 @@ export function Squads({ match, onDone, onClose }: { match: Match; onDone: (m: M
             <Ionicons name={me ? 'person-circle' : 'person-add-outline'} size={18} color={me ? c.brand : c.textSecondary} />
             <View style={{ flex: 1 }}>
               <Text variant="caption" tone={me ? 'brand' : 'secondary'}>
-                {me ? 'your innings feeds your kpis' : "which one is you?"}
+                {me ? 'feeds your kpis' : 'which one is you?'}
               </Text>
               {me && <Text variant="callout">{me.name}</Text>}
             </View>

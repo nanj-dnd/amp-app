@@ -69,7 +69,7 @@ export function ProgressScreen({ go, onClose }: { go: (r: string) => void; onClo
 
 function Overview({ go }: { go: (r: string) => void }) {
   const c = useColors();
-  const { progression, profile } = useStore();
+  const { progression } = useStore();
   const [list, setList] = useState(seed);
 
   const rated = progression.ampScore > 0;
@@ -120,7 +120,6 @@ function Overview({ go }: { go: (r: string) => void }) {
         {list.map((s) => (
           <SessionCard
             key={s.id}
-            player={profile.name || 'you'}
             kind={s.kind}
             when={s.when}
             score={s.score}
@@ -550,7 +549,7 @@ function Matches({ go }: { go: (r: string) => void }) {
       {untagged > 0 && (
         <Section>
           <Text variant="caption" tone="tertiary">
-            {`${untagged} of these ${untagged === 1 ? 'has' : 'have'} nobody marked as you, so ${untagged === 1 ? "it doesn't" : "they don't"} feed your kpis.`}
+            {`${untagged} not marked as you — ${untagged === 1 ? "doesn't" : "don't"} feed your kpis.`}
           </Text>
         </Section>
       )}
@@ -567,7 +566,7 @@ function Matches({ go }: { go: (r: string) => void }) {
         {insights.length === 0 ? (
           <Card>
             <Text variant="caption" tone="secondary">
-              {`${MIN_BALLS} balls of evidence needed before these mean anything.`}
+              {`needs ${MIN_BALLS} balls of evidence.`}
             </Text>
           </Card>
         ) : (

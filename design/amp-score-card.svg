@@ -26,9 +26,7 @@
 
     <!-- the number -->
     <text x="540" y="529" font-size="389" font-weight="800" letter-spacing="-24" fill="#FFFFFF" text-anchor="middle">62</text>
-
-    <rect x="443" y="562" width="194" height="73" rx="37" fill="#D18A1E"/>
-    <text x="540" y="612" font-size="41" font-weight="800" letter-spacing="1" fill="#0B3F2C" text-anchor="middle">fair</text>
+    <rect x="453" y="563" width="173" height="15" rx="8" fill="#D18A1E"/>
 
     <text x="540" y="718" font-size="63" font-weight="800" fill="#FFFFFF" text-anchor="middle">anshul yemul</text>
     <text x="540" y="768" font-size="39" font-weight="500" fill="#FFFFFF" fill-opacity="0.66" text-anchor="middle">bowling · district</text>
