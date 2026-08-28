@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen, Section } from '../ui/Screen';
 import { Card, Divider } from '../ui/Card';
 import { Text } from '../ui/Text';
+import { SheenFill } from '../ui/Metal';
+import { GlossText } from '../ui/GlossText';
 import { Touch } from '../ui/Pressable';
 import { Bar } from '../ui/Score';
 import { StatTile, TileRow, EmptyState } from '../ui/Bits';
@@ -213,9 +215,9 @@ function Growth() {
             {focused.label}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.sm }}>
-            <Text variant="score" color={c.score[bandFor(trend.now)]} style={{ fontSize: 30, lineHeight: 34 }}>
+            <GlossText variant="score" color={c.score[bandFor(trend.now)]} style={{ fontSize: 30, lineHeight: 34 }}>
               {String(trend.now)}
-            </Text>
+            </GlossText>
             <Text
               variant="callout"
               color={trend.delta === 0 ? c.textTertiary : trend.delta > 0 ? c.score.good : c.score.poor}
@@ -394,13 +396,13 @@ function SectionRows({
             {`${delta > 0 ? '+' : ''}${delta}`}
           </Text>
         )}
-        <Text
+        <GlossText
           variant="bodyStrong"
           color={result.score === null ? c.textTertiary : c.score[bandFor(result.score)]}
           style={{ width: 30, textAlign: 'right' }}
         >
           {result.score === null ? '—' : String(result.score)}
-        </Text>
+        </GlossText>
         <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={15} color={c.textTertiary} />
       </Touch>
 
@@ -463,10 +465,13 @@ function Spell() {
                     width: '100%',
                     height: Math.max(8, (d.score / 100) * 100),
                     borderRadius: radius.sm,
+                    overflow: 'hidden',
                     backgroundColor: c.score[bandFor(d.score)],
                     opacity: open === null || on ? 1 : 0.4,
                   }}
-                />
+                >
+                  <SheenFill color={c.score[bandFor(d.score)]} />
+                </View>
                 <Text variant="tab" tone={on ? 'brand' : 'tertiary'}>
                   {String(d.id)}
                 </Text>
@@ -579,9 +584,9 @@ function Matches({ go }: { go: (r: string) => void }) {
                     <Text variant="bodyStrong" style={{ flex: 1 }}>
                       {k.name}
                     </Text>
-                    <Text variant="bodyStrong" color={c.score[bandFor(k.score)]}>
+                    <GlossText variant="bodyStrong" color={c.score[bandFor(k.score)]}>
                       {String(k.score)}
-                    </Text>
+                    </GlossText>
                   </View>
                   <Bar value={k.score} />
                   <Text variant="tab" tone="tertiary">

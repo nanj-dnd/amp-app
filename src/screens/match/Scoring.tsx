@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../ui/Text';
+import { GlossText } from '../../ui/GlossText';
 import { Touch } from '../../ui/Pressable';
 import { Button, IconButton } from '../../ui/Button';
 import { useColors, space, radius, font } from '../../theme';
@@ -172,9 +173,14 @@ export function Scoring({
             <Text variant="caption" tone="tertiary">
               {rrr === null ? 'crr' : 'req'}
             </Text>
-            <Text variant="bodyStrong" tone={rrr === null ? 'primary' : 'brand'}>
-              {(rrr ?? runRate(inn)).toFixed(2)}
-            </Text>
+            {/* the required rate is the tinted one, so it is the struck one */}
+            {rrr === null ? (
+              <Text variant="bodyStrong">{runRate(inn).toFixed(2)}</Text>
+            ) : (
+              <GlossText variant="bodyStrong" color={c.brand}>
+                {rrr.toFixed(2)}
+              </GlossText>
+            )}
           </View>
         </View>
 

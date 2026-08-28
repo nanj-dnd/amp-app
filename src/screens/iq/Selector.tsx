@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../ui/Text';
+import { GlossText } from '../../ui/GlossText';
 import { Touch } from '../../ui/Pressable';
 import { Button } from '../../ui/Button';
 import { Card, Divider } from '../../ui/Card';
@@ -188,9 +189,13 @@ export function Selector({ onScore }: { onScore: (pts: number) => void }) {
                 <Text variant="bodyStrong" style={{ flex: 1 }}>
                   {p.name}
                 </Text>
-                <Text variant="callout" tone={afford ? 'brand' : 'tertiary'} style={{ fontFamily: font.bold }}>
+                <GlossText
+                  variant="callout"
+                  color={afford ? c.brand : c.textTertiary}
+                  style={{ fontFamily: font.bold }}
+                >
                   {`₹${p.price}cr`}
-                </Text>
+                </GlossText>
               </View>
               <Text variant="caption" tone="secondary">
                 {`${p.role} · ${p.note}`}
@@ -236,9 +241,13 @@ function Purse({ label, value, tone }: { label: string; value: string; tone?: st
       <Text variant="tab" tone="tertiary">
         {label}
       </Text>
-      <Text variant="bodyStrong" color={tone ?? c.text}>
-        {value}
-      </Text>
+      {tone ? (
+        <GlossText variant="bodyStrong" color={tone}>
+          {value}
+        </GlossText>
+      ) : (
+        <Text variant="bodyStrong">{value}</Text>
+      )}
     </View>
   );
 }

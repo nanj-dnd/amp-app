@@ -5,12 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Hud } from '../ui/Hud';
 import { WeekStrip, type StripWeek } from '../ui/WeekStrip';
 import { Text } from '../ui/Text';
+import { MetalFill, withAlpha } from '../ui/Metal';
 import { Touch } from '../ui/Pressable';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Sheet } from '../ui/Sheet';
 import { BatIcon, BallIcon } from '../ui/Icons';
-import { useColors, space, radius, font, bandFor } from '../theme';
+import { useColors, space, radius, font, bandFor, METALS } from '../theme';
 import { TAB_BAR_SPACE } from '../ui/TabBar';
 import { useStore } from '../state/store';
 import { totalRuns, wickets, oversText } from '../match/engine';
@@ -102,35 +103,39 @@ export function RoadScreen({ go }: { go: (r: string) => void }) {
 
         {/* the destination, stated once */}
         <View style={{ paddingHorizontal: space.gutter, paddingTop: space.lg, paddingBottom: space.xl }}>
-          <Card style={{ backgroundColor: c.brand, gap: space.md }}>
+          <Card style={{ backgroundColor: METALS.brand.base, gap: space.md }}>
+            <MetalFill metal="brand" />
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.md }}>
               <View style={{ flex: 1, gap: 3 }}>
-                <Text variant="eyebrow" color="rgba(255,255,255,0.6)">
+                {/* ink, not white: the lit half of a metal is too bright to
+                    carry white type, and white on metal is the thing that makes
+                    it look cheap everywhere else too */}
+                <Text variant="eyebrow" color={withAlpha(METALS.brand.ink, 0.62)}>
                   your goal
                 </Text>
-                <Text variant="heading" tone="onBrand">
+                <Text variant="heading" color={METALS.brand.ink}>
                   {goal ? `${formatMetric(goal.to)} ${goal.unit}` : 'set a goal'}
                 </Text>
-                <Text variant="callout" color="rgba(255,255,255,0.78)" numberOfLines={2}>
+                <Text variant="callout" color={withAlpha(METALS.brand.ink, 0.8)} numberOfLines={2}>
                   {goal ? goalHeadline(goal) : 'pick a target and a date in your profile'}
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontFamily: font.black, fontSize: 30, letterSpacing: -1.4, color: '#FFFFFF' }}>
+                <Text style={{ fontFamily: font.black, fontSize: 30, letterSpacing: -1.4, color: METALS.brand.ink }}>
                   {String(weeksLeft)}
                 </Text>
-                <Text variant="tab" color="rgba(255,255,255,0.7)">
+                <Text variant="tab" color={withAlpha(METALS.brand.ink, 0.7)}>
                   {weeksLeft === 1 ? 'week left' : 'weeks left'}
                 </Text>
               </View>
             </View>
 
-            <View style={{ height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.22)', overflow: 'hidden' }}>
+            <View style={{ height: 6, borderRadius: 3, backgroundColor: withAlpha(METALS.brand.deep, 0.3), overflow: 'hidden' }}>
               <View
                 style={{
                   height: '100%',
                   width: `${Math.round((doneWeeks / Math.max(1, plan.length)) * 100)}%`,
-                  backgroundColor: '#FFFFFF',
+                  backgroundColor: METALS.brand.hi,
                   borderRadius: 3,
                 }}
               />
@@ -224,13 +229,15 @@ function ThisWeek({ week, onAction }: { week: PlanWeek; onAction: (id: ActionKin
                   borderRadius: 18,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: complete ? c.brand : c.fill,
+                  backgroundColor: complete ? METALS.brand.base : c.fill,
+                  overflow: 'hidden',
                 }}
               >
+                {complete && <MetalFill metal="brand" />}
                 <Ionicons
                   name={complete ? 'checkmark' : ACTION_ICON[a.id]}
                   size={18}
-                  color={complete ? c.textOnBrand : c.textSecondary}
+                  color={complete ? METALS.brand.ink : c.textSecondary}
                 />
               </View>
 

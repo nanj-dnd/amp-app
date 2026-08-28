@@ -1,7 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { Text } from './Text';
+import { GlossText } from './GlossText';
 import { useColors, font, bandFor, space } from '../theme';
 
 /** polar point on the dial's arc. */
@@ -23,6 +24,11 @@ function arc(cx: number, cy: number, r: number, from: number, to: number) {
  * a full ring has no start and no end, so 66 and 6 look equally "round". a
  * gauge has a floor and a ceiling in the shape itself, which is what a rating
  * out of 100 needs.
+ *
+ * the arc is a stroke, not a fill, so it takes its gloss as a gradient along
+ * its own length — light at the start where it leaves the floor, deeper at the
+ * head. the id is per-instance: on web react-native-svg renders into the one
+ * document, and a shared id would paint every dial on screen the same band.
  */
 export function ScoreDial({
   value,
@@ -37,6 +43,9 @@ export function ScoreDial({
 }) {
   const c = useColors();
   const band = bandFor(value);
+  const gid = `dial-${React.useId().replace(/:/g, '')}`;
+  const lit = shift(c.score[band], 0.18);
+  const deep = shift(c.score[band], -0.13);
   const r = (size - stroke) / 2;
   const cx = size / 2;
   const cy = size / 2;
@@ -48,6 +57,13 @@ export function ScoreDial({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <Defs>
+          <LinearGradient id={gid} x1="0" y1="0" x2="0.7" y2="1">
+            <Stop offset="0" stopColor={lit} />
+            <Stop offset="0.5" stopColor={c.score[band]} />
+            <Stop offset="1" stopColor={deep} />
+          </LinearGradient>
+        </Defs>
         <Path
           d={arc(cx, cy, r, START, START + SWEEP)}
           stroke={c.fill}
@@ -58,7 +74,7 @@ export function ScoreDial({
         {value > 0 && (
           <Path
             d={arc(cx, cy, r, START, end)}
-            stroke={c.score[band]}
+            stroke={`url(#${gid})`}
             strokeWidth={stroke}
             strokeLinecap="round"
             fill="none"
@@ -67,17 +83,12 @@ export function ScoreDial({
       </Svg>
 
       {/* the arc and the numeral are both the band colour; there is no word */}
-      <Text
-        style={{
-          fontFamily: font.black,
-          fontSize: size * 0.3,
-          lineHeight: size * 0.32,
-          letterSpacing: -2,
-          color: c.score[band],
-        }}
+      <GlossText
+        color={c.score[band]}
+        style={{ fontFamily: font.black, fontSize: size * 0.3, lineHeight: size * 0.32, letterSpacing: -2 }}
       >
         {String(value)}
-      </Text>
+      </GlossText>
 
       {caption && (
         <Text variant="caption" tone="tertiary" style={{ position: 'absolute', bottom: 0 }}>
@@ -86,4 +97,15 @@ export function ScoreDial({
       )}
     </View>
   );
+}
+
+/** mix a hex toward white (t > 0) or black (t < 0). */
+function shift(hex: string, t: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const to = t > 0 ? 255 : 0;
+  const a = Math.abs(t);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) =>
+    Math.max(0, Math.min(255, Math.round(v + (to - v) * a))),
+  );
+  return `#${ch.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }

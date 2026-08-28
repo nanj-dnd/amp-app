@@ -3,9 +3,11 @@ import { View, Animated, Easing, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Text } from '../../ui/Text';
+import { GlossText } from '../../ui/GlossText';
+import { MetalFill } from '../../ui/Metal';
 import { Touch } from '../../ui/Pressable';
 import { Button } from '../../ui/Button';
-import { useColors, space, radius, font } from '../../theme';
+import { useColors, space, radius, font, METALS } from '../../theme';
 
 /**
  * the nets, renamed **reactions** — three drills for the things a scenario
@@ -190,10 +192,13 @@ export function TimingBar({ onScore }: { onScore: (pts: number) => void }) {
               top: 6,
               bottom: 6,
               borderRadius: 3,
-              backgroundColor: c.brand,
+              backgroundColor: METALS.brand.base,
+              overflow: 'hidden',
               left: x.interpolate({ inputRange: [0, 1], outputRange: ['2%', '96%'] }),
             }}
-          />
+          >
+            <MetalFill metal="brand" />
+          </Animated.View>
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
@@ -309,12 +314,14 @@ export function CatchDrill({ onScore }: { onScore: (pts: number) => void }) {
                 width: 44,
                 height: 44,
                 borderRadius: 22,
-                backgroundColor: c.brand,
+                backgroundColor: METALS.brand.base,
+                overflow: 'hidden',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons name="ellipse" size={18} color="#FFFFFF" />
+              <MetalFill metal="brand" />
+              <Ionicons name="ellipse" size={18} color={METALS.brand.ink} />
             </Touch>
           ))}
 
@@ -383,9 +390,13 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: str
       <Text variant="tab" tone="tertiary">
         {label}
       </Text>
-      <Text variant="bodyStrong" color={tone ?? c.text}>
-        {value}
-      </Text>
+      {tone ? (
+        <GlossText variant="bodyStrong" color={tone}>
+          {value}
+        </GlossText>
+      ) : (
+        <Text variant="bodyStrong">{value}</Text>
+      )}
     </View>
   );
 }

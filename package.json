@@ -33,8 +33,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test:engine": "esbuild src/match/engine.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/engine.test.mjs --log-level=error && node node_modules/.cache/engine.test.mjs",
+    "test:indicators": "esbuild src/indicators.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/indicators.test.mjs --log-level=error && node node_modules/.cache/indicators.test.mjs",
     "test:insights": "esbuild src/insights.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/insights.test.mjs --log-level=error && node node_modules/.cache/insights.test.mjs",
-    "test": "npm run test:engine && npm run test:insights"
+    "test": "npm run test:engine && npm run test:insights && npm run test:indicators"
   },
   "private": true
 }

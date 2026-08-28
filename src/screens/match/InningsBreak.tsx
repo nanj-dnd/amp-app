@@ -2,9 +2,11 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../ui/Text';
+import { GlossText } from '../../ui/GlossText';
+import { MetalFill, withAlpha } from '../../ui/Metal';
 import { Card, Divider } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { useColors, space, radius, font } from '../../theme';
+import { useColors, space, radius, font, METALS } from '../../theme';
 import { Header, Footer } from './Setup';
 import {
   totalRuns,
@@ -46,14 +48,15 @@ export function InningsBreak({ match, onStart, onExit }: { match: Match; onStart
       <Header title="innings break" onClose={onExit} />
 
       <ScrollView contentContainerStyle={{ padding: space.gutter, gap: space.lg, paddingBottom: space.xxxl }}>
-        <Card style={{ backgroundColor: c.brand, gap: space.sm }}>
-          <Text variant="eyebrow" color="rgba(255,255,255,0.62)">
+        <Card style={{ backgroundColor: METALS.brand.base, gap: space.sm }}>
+          <MetalFill metal="brand" />
+          <Text variant="eyebrow" color={withAlpha(METALS.brand.ink, 0.62)}>
             target
           </Text>
-          <Text style={{ fontFamily: font.black, fontSize: 44, letterSpacing: -2, color: '#FFFFFF' }}>
+          <GlossText color={METALS.brand.ink} style={{ fontFamily: font.black, fontSize: 44, letterSpacing: -2 }}>
             {String(runs + 1)}
-          </Text>
-          <Text variant="callout" color="rgba(255,255,255,0.8)">
+          </GlossText>
+          <Text variant="callout" color={withAlpha(METALS.brand.ink, 0.8)}>
             {`${chasing.name} need ${runs + 1} off ${match.config.overs} overs`}
           </Text>
         </Card>

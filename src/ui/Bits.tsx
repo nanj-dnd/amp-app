@@ -3,6 +3,7 @@ import { View, Image, TextInput, StyleSheet, type ViewStyle } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { useColors, radius, space, type } from '../theme';
 import { Text } from './Text';
+import { GlossText } from './GlossText';
 import { Card } from './Card';
 import { Touch } from './Pressable';
 
@@ -20,9 +21,14 @@ export function StatTile({
 }) {
   return (
     <Card style={{ flex: 1, paddingVertical: space.xl, paddingHorizontal: space.lg }}>
-      <Text variant="title" color={tone}>
-        {value}
-      </Text>
+      {/* a tinted stat is struck; an untinted one is body text and stays flat */}
+      {tone ? (
+        <GlossText variant="title" color={tone}>
+          {value}
+        </GlossText>
+      ) : (
+        <Text variant="title">{value}</Text>
+      )}
       <Text variant="caption" tone="secondary" style={{ marginTop: 4 }}>
         {label}
       </Text>

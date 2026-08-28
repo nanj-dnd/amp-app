@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Animated, Easing, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useColors, space, radius, font } from '../../theme';
+import { useColors, space, radius, font, METALS } from '../../theme';
 import { Text } from '../../ui/Text';
+import { MetalFill } from '../../ui/Metal';
 import { Button, IconButton } from '../../ui/Button';
 import { Segmented } from '../../ui/Segmented';
 import { Input } from '../../ui/Bits';
@@ -90,10 +91,13 @@ export function Onboarding() {
             style={{
               height: '100%',
               borderRadius: 4,
-              backgroundColor: c.brand,
+              backgroundColor: METALS.brand.base,
+              overflow: 'hidden',
               width: progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }),
             }}
-          />
+          >
+            <MetalFill metal="brand" />
+          </Animated.View>
         </View>
       </View>
 

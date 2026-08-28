@@ -3,6 +3,8 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../ui/Text';
+import { SheenBar, SheenFill } from '../../ui/Metal';
+import { GlossText } from '../../ui/GlossText';
 import { Touch } from '../../ui/Pressable';
 import { Card, Divider } from '../../ui/Card';
 import { IconButton } from '../../ui/Button';
@@ -70,22 +72,23 @@ export function ReportScreen({
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <View
         style={{
-          paddingTop: insets.top + space.sm,
+          paddingTop: insets.top + space.md,
+          paddingBottom: space.sm,
           paddingHorizontal: space.gutter,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: space.sm,
+          gap: space.md,
           backgroundColor: c.surface,
         }}
       >
-        <IconButton icon="chevron-back" size={34} onPress={onClose} />
+        <IconButton icon="chevron-back" size={38} onPress={onClose} />
         <Text variant="heading" style={{ flex: 1 }}>
           report
         </Text>
         <Text variant="caption" tone="tertiary">
           {report.date}
         </Text>
-        {onAsk && <IconButton icon="chatbubble-ellipses-outline" size={34} onPress={onAsk} />}
+        {onAsk && <IconButton icon="chatbubble-ellipses-outline" size={38} onPress={onAsk} />}
       </View>
 
       <View
@@ -108,7 +111,7 @@ export function ReportScreen({
                 flexGrow: 1,
                 flexBasis: 0,
                 alignItems: 'center',
-                paddingVertical: space.md,
+                paddingVertical: space.lg,
                 borderBottomWidth: 2,
                 borderBottomColor: on ? c.brand : 'transparent',
               }}
@@ -122,7 +125,15 @@ export function ReportScreen({
       </View>
 
       <ScrollView
-        contentContainerStyle={{ padding: space.gutter, paddingBottom: insets.bottom + space.xxxl, gap: space.md }}
+        // cards need air between them or the whole report reads as one column
+        // of undifferentiated white; xl matches the grouped-list rhythm the
+        // rest of the app uses via <Section>
+        contentContainerStyle={{
+          padding: space.gutter,
+          paddingTop: space.xl,
+          paddingBottom: insets.bottom + space.xxxl,
+          gap: space.xl,
+        }}
         showsVerticalScrollIndicator={false}
       >
         {tab === 'summary' && (
@@ -179,14 +190,14 @@ function Summary({
   return (
     <>
       {/* the number, the trend and the coverage — one card, not three */}
-      <Card style={{ alignItems: 'center', paddingVertical: space.xl, gap: space.lg }}>
+      <Card style={{ alignItems: 'center', paddingVertical: space.xxl, gap: space.xl }}>
         <ScoreDial value={result.overall ?? 0} size={186} />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
           <Ionicons name={up ? 'caret-up' : 'caret-down'} size={13} color={up ? c.score.good : c.score.poor} />
-          <Text variant="callout" color={up ? c.score.good : c.score.poor} style={{ fontFamily: font.bold }}>
+          <GlossText variant="callout" color={up ? c.score.good : c.score.poor} style={{ fontFamily: font.bold }}>
             {`${up ? '+' : ''}${(last - prev).toFixed(1)}`}
-          </Text>
+          </GlossText>
           <Text variant="caption" tone="tertiary">
             {`vs last · ${scoredCount(report)}/${report.ratings.length} kpis`}
           </Text>
@@ -203,9 +214,12 @@ function Summary({
                   flexBasis: 0,
                   height: Math.max(6, (h / 100) * 40),
                   borderRadius: 3,
+                  overflow: 'hidden',
                   backgroundColor: now ? c.score[bandFor(h)] : c.fillStrong,
                 }}
-              />
+              >
+                {now && <SheenFill color={c.score[bandFor(h)]} />}
+              </View>
             );
           })}
         </View>
@@ -236,7 +250,7 @@ function Summary({
           scale={false}
           haptic="selection"
           onPress={() => onKpi(report.priorityId)}
-          style={{ padding: space.xl, gap: space.sm }}
+          style={{ padding: space.xl, gap: space.md }}
         >
           <Text variant="eyebrow" color={c.score.poor}>
             fix this week
@@ -261,7 +275,7 @@ function Summary({
               scale={false}
               haptic="selection"
               onPress={() => onDrill(d)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.xl, paddingVertical: space.lg }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingHorizontal: space.xl, paddingVertical: space.xl }}
             >
               <View
                 style={{
@@ -324,27 +338,25 @@ function Summary({
                   {s.section.name}
                 </Text>
                 {mv && (
-                  <Text variant="tab" color={mv.delta > 0 ? c.score.good : c.score.poor}>
+                  <GlossText variant="tab" color={mv.delta > 0 ? c.score.good : c.score.poor}>
                     {`${mv.delta > 0 ? '+' : ''}${mv.delta}`}
-                  </Text>
+                  </GlossText>
                 )}
-                <Text
+                <GlossText
                   variant="bodyStrong"
                   color={s.score === null ? c.textTertiary : c.score[bandFor(s.score)]}
                   style={{ width: 28, textAlign: 'right' }}
                 >
                   {s.score === null ? '—' : String(s.score)}
-                </Text>
+                </GlossText>
               </View>
               <View style={{ height: 6, borderRadius: 3, backgroundColor: c.fill }}>
                 {s.score !== null && (
-                  <View
-                    style={{
-                      height: '100%',
-                      width: `${Math.max(2, s.score)}%`,
-                      borderRadius: 3,
-                      backgroundColor: c.score[bandFor(s.score)],
-                    }}
+                  <SheenBar
+                    color={c.score[bandFor(s.score)]}
+                    height={6}
+                    radius={3}
+                    style={{ width: `${Math.max(2, s.score)}%` }}
                   />
                 )}
               </View>
@@ -422,12 +434,12 @@ function Ratings({
                   {`${s.section.pts}pts · ${s.scored}/${s.total} scored`}
                 </Text>
               </View>
-              <Text
+              <GlossText
                 variant="bodyStrong"
                 color={s.score === null ? c.textTertiary : c.score[bandFor(s.score)]}
               >
                 {s.score === null ? '—' : String(s.score)}
-              </Text>
+              </GlossText>
               <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={c.textTertiary} />
             </Touch>
 
@@ -457,24 +469,22 @@ function Ratings({
                       </Text>
                       <View style={{ height: 5, borderRadius: 3, backgroundColor: c.fill }}>
                         {!out && (
-                          <View
-                            style={{
-                              height: '100%',
-                              width: `${Math.max(2, pct)}%`,
-                              borderRadius: 3,
-                              backgroundColor: c.score[bandFor(pct)],
-                            }}
+                          <SheenBar
+                            color={c.score[bandFor(pct)]}
+                            height={5}
+                            radius={3}
+                            style={{ width: `${Math.max(2, pct)}%` }}
                           />
                         )}
                       </View>
                     </View>
-                    <Text
+                    <GlossText
                       variant="callout"
                       color={out ? c.textTertiary : c.score[bandFor(pct)]}
                       style={{ fontFamily: font.bold, width: 26, textAlign: 'right' }}
                     >
                       {out ? '—' : String(pct)}
-                    </Text>
+                    </GlossText>
                     <Ionicons name="chevron-forward" size={13} color={out ? 'transparent' : c.textTertiary} />
                   </Touch>
                 );
@@ -511,17 +521,12 @@ function KpiSheet({
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3 }}>
-          <Text
-            style={{
-              fontFamily: font.black,
-              fontSize: 38,
-              lineHeight: 42,
-              letterSpacing: -1.8,
-              color: out ? c.textTertiary : c.score[bandFor((rating.score ?? 0) * 10)],
-            }}
+          <GlossText
+            color={out ? c.textTertiary : c.score[bandFor((rating.score ?? 0) * 10)]}
+            style={{ fontFamily: font.black, fontSize: 38, lineHeight: 42, letterSpacing: -1.8 }}
           >
             {out ? '—' : rating.score!.toFixed(1)}
-          </Text>
+          </GlossText>
           <Text variant="heading" tone="tertiary">
             /10
           </Text>
@@ -606,9 +611,9 @@ function RiskSheet({ findings, onClose }: { findings: ScreenFinding[]; onClose: 
                   <Text variant="bodyStrong" style={{ flex: 1 }}>
                     {f.area}
                   </Text>
-                  <Text variant="tab" color={tone}>
+                  <GlossText variant="tab" color={tone}>
                     {f.level}
-                  </Text>
+                  </GlossText>
                 </View>
                 <Text variant="caption" tone="secondary" preserveCase>
                   {f.note}
@@ -681,7 +686,7 @@ function VideoTab({
               scale={false}
               haptic="selection"
               onPress={() => onOpen(r.kpiId)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.xl, paddingVertical: space.lg }}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: space.lg, paddingHorizontal: space.xl, paddingVertical: space.xl }}
             >
               <View
                 style={{

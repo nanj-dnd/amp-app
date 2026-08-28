@@ -1,6 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from './Text';
+import { SheenBar } from './Metal';
+import { GlossText } from './GlossText';
 import { useColors, space, radius, font, bandFor } from '../theme';
 import type { SectionResult } from '../kpis';
 
@@ -42,24 +44,22 @@ export function SectionChart({
               <Text variant="tab" tone="tertiary">
                 {`${s.weight}pts`}
               </Text>
-              <Text
+              <GlossText
                 variant="bodyStrong"
                 color={missing ? c.textTertiary : c.score[bandFor(value)]}
                 style={{ width: 30, textAlign: 'right' }}
               >
                 {missing ? '—' : String(value)}
-              </Text>
+              </GlossText>
             </View>
 
             <View style={{ height: 8, borderRadius: 4, backgroundColor: c.fill }}>
               {!missing && (
-                <View
-                  style={{
-                    height: '100%',
-                    width: `${Math.max(2, Math.min(100, value))}%`,
-                    borderRadius: 4,
-                    backgroundColor: c.score[bandFor(value)],
-                  }}
+                <SheenBar
+                  color={c.score[bandFor(value)]}
+                  height={8}
+                  radius={4}
+                  style={{ width: `${Math.max(2, Math.min(100, value))}%` }}
                 />
               )}
               {benchmark !== undefined && (

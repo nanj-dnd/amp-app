@@ -132,6 +132,51 @@ export const type = {
   tab: { fontFamily: font.semibold, fontSize: 10.5, lineHeight: 13, letterSpacing: 0.1 },
 } as const;
 
+/* ----------------------------------------------------------------- metal */
+
+/**
+ * the metals.
+ *
+ * amp used to be one flat green on the grounds that gold fought the brand.
+ * the direction changed: colour on this platform is metal — vivid, but lit
+ * rather than loud. a metal is four stops and a light source, never a flat
+ * fill, and the light always comes from the top left so a screen full of them
+ * reads as one object under one lamp instead of a pile of stickers.
+ *
+ * `ink` is the only colour allowed on top of a metal. it is a deep tint of the
+ * metal itself rather than white, because white on a light metal (gold, and
+ * every one above it) is where premium turns into cheap.
+ */
+export type MetalId = 'bronze' | 'silver' | 'gold' | 'elite' | 'brand';
+
+export type Metal = {
+  /** the lit edge, top-left */
+  hi: string;
+  /** the body of the metal */
+  base: string;
+  /** the shaded edge, bottom-right */
+  deep: string;
+  /** what goes on top of it */
+  ink: string;
+  /** the cast it throws on the surface under it */
+  glow: string;
+};
+
+export const METALS: Record<MetalId, Metal> = {
+  // the amp metal. the logo green, lit — this is the default whenever
+  // something is amp's rather than a tier's.
+  brand: { hi: '#6FD9A9', base: '#2E9E6B', deep: '#0E5A3D', ink: '#06291B', glow: 'rgba(22,115,79,0.45)' },
+  bronze: { hi: '#F0C199', base: '#B87333', deep: '#6E3C12', ink: '#3D2008', glow: 'rgba(150,85,25,0.42)' },
+  silver: { hi: '#DCE6EC', base: '#8E9BA4', deep: '#4E5A62', ink: '#232C33', glow: 'rgba(60,74,84,0.42)' },
+  gold: { hi: '#FBDD92', base: '#D2A03A', deep: '#8E620F', ink: '#4A3107', glow: 'rgba(180,130,20,0.42)' },
+  // above gold, and cooler than it on purpose: the brightest and least
+  // saturated of the five, which is what reads as the most precious.
+  elite: { hi: '#F7FBFF', base: '#B9C7D6', deep: '#6A7A8C', ink: '#232F3C', glow: 'rgba(105,125,150,0.42)' },
+};
+
+/** the tier ladder from the card model, in order. */
+export const TIER_METAL = { bronze: 'bronze', silver: 'silver', gold: 'gold', elite: 'elite' } as const;
+
 /* -------------------------------------------------------- space / shape */
 
 // 4pt grid. use the names, not the numbers.

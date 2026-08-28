@@ -4,8 +4,9 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useColors, radius, space, motion, elevation } from '../theme';
+import { useColors, radius, space, motion, elevation, METALS } from '../theme';
 import { Text } from './Text';
+import { MetalFill } from './Metal';
 import { CAN_BLUR, BLUR_INTENSITY } from './chrome';
 
 export const TAB_BAR_HEIGHT = 58;
@@ -117,13 +118,15 @@ function Tab({ item, active, onPress }: { item: Item; active: boolean; onPress: 
             width: 44,
             height: 44,
             borderRadius: 22,
-            backgroundColor: active ? c.brandPressed : c.brand,
+            backgroundColor: active ? METALS.brand.deep : METALS.brand.base,
+            overflow: 'hidden',
             alignItems: 'center',
             justifyContent: 'center',
             transform: [{ scale: s }],
           }}
         >
-          <Ionicons name="add" size={26} color={c.textOnBrand} />
+          <MetalFill metal="brand" />
+          <Ionicons name="add" size={26} color={METALS.brand.ink} />
         </Animated.View>
       </Pressable>
     );

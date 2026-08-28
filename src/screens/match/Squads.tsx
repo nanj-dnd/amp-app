@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../ui/Text';
+import { MetalFill } from '../../ui/Metal';
 import { Touch } from '../../ui/Pressable';
 import { Button } from '../../ui/Button';
 import { Segmented } from '../../ui/Segmented';
-import { useColors, space, radius, font } from '../../theme';
+import { useColors, space, radius, font, METALS } from '../../theme';
 import { Header, Footer, TeamInput } from './Setup';
 import { PickSheet } from './PickSheet';
 import { Sheet } from '../../ui/Sheet';
@@ -78,12 +79,14 @@ export function Squads({ match, onDone, onClose }: { match: Match; onDone: (m: M
                 width: 46,
                 height: 46,
                 borderRadius: radius.md,
-                backgroundColor: c.brand,
+                backgroundColor: METALS.brand.base,
+                overflow: 'hidden',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons name="add" size={22} color={c.textOnBrand} />
+              <MetalFill metal="brand" />
+              <Ionicons name="add" size={22} color={METALS.brand.ink} />
             </Touch>
           </View>
 
@@ -223,10 +226,12 @@ function Badge({ label }: { label: string }) {
         borderRadius: radius.pill,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: c.brand,
+        backgroundColor: METALS.brand.base,
+        overflow: 'hidden',
       }}
     >
-      <Text variant="tab" tone="onBrand" style={{ fontFamily: font.bold }}>
+      <MetalFill metal="brand" />
+      <Text variant="tab" color={METALS.brand.ink} style={{ fontFamily: font.bold }}>
         {label}
       </Text>
     </View>

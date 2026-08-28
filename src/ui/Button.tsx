@@ -1,14 +1,17 @@
 import React from 'react';
 import { View, StyleSheet, ActivityIndicator, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useColors, radius, space } from '../theme';
+import { useColors, radius, space, METALS } from '../theme';
 import { Text } from './Text';
 import { Touch } from './Pressable';
+import { MetalFill } from './Metal';
 
 type Kind = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
-const HEIGHT: Record<Size, number> = { sm: 34, md: 44, lg: 52 };
+// 44 is the ios minimum tap target, so md and lg clear it and sm is only ever
+// used inline beside text where the whole row is the target.
+const HEIGHT: Record<Size, number> = { sm: 36, md: 46, lg: 54 };
 
 export function Button({
   label,
@@ -33,8 +36,12 @@ export function Button({
 }) {
   const c = useColors();
 
+  // primary is the one solid colour in the set, so it is the one that gets
+  // struck rather than filled. its label is the metal's ink, not white.
+  const metal = kind === 'primary';
+
   const skin: Record<Kind, { bg: string; fg: string; border: string }> = {
-    primary: { bg: c.brand, fg: c.textOnBrand, border: 'transparent' },
+    primary: { bg: METALS.brand.base, fg: METALS.brand.ink, border: 'transparent' },
     secondary: { bg: c.surface, fg: c.text, border: c.hairline },
     ghost: { bg: 'transparent', fg: c.brand, border: 'transparent' },
     danger: { bg: c.dangerTint, fg: c.danger, border: 'transparent' },
@@ -58,13 +65,15 @@ export function Button({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: space.sm,
+          gap: size === 'sm' ? space.sm : space.md,
           alignSelf: full ? 'stretch' : 'flex-start',
           opacity: off ? 0.45 : 1,
+          overflow: 'hidden',
         },
         style as ViewStyle,
       ]}
     >
+      {metal && <MetalFill metal="brand" />}
       {loading ? (
         <ActivityIndicator size="small" color={s.fg} />
       ) : (
@@ -84,7 +93,7 @@ export function IconButton({
   icon,
   onPress,
   kind = 'secondary',
-  size = 38,
+  size = 40,
   disabled,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
@@ -94,8 +103,9 @@ export function IconButton({
   disabled?: boolean;
 }) {
   const c = useColors();
-  const bg = kind === 'primary' ? c.brand : c.fill;
-  const fg = kind === 'primary' ? c.textOnBrand : c.text;
+  const metal = kind === 'primary';
+  const bg = metal ? METALS.brand.base : c.fill;
+  const fg = metal ? METALS.brand.ink : c.text;
   return (
     <Touch
       onPress={onPress}
@@ -108,8 +118,10 @@ export function IconButton({
         alignItems: 'center',
         justifyContent: 'center',
         opacity: disabled ? 0.4 : 1,
+        overflow: 'hidden',
       }}
     >
+      {metal && <MetalFill metal="brand" />}
       <View>
         <Ionicons name={icon} size={size * 0.46} color={fg} />
       </View>

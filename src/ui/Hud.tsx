@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors, space, radius, bandFor, font } from '../theme';
 import { Text } from './Text';
+import { GlossText } from './GlossText';
 import { Touch } from './Pressable';
 import { useStore } from '../state/store';
 import { leagueFor } from '../state/types';
@@ -49,16 +50,13 @@ export function Hud({ onScorePress, onAsk }: { onScorePress?: () => void; onAsk?
           backgroundColor: rated ? c.score[band] + '1F' : c.fill,
         }}
       >
-        <Text
-          style={{
-            fontFamily: font.black,
-            fontSize: 23,
-            letterSpacing: -1,
-            color: rated ? c.score[band] : c.textTertiary,
-          }}
+        {/* the number the product sells, struck in its band */}
+        <GlossText
+          color={rated ? c.score[band] : c.textTertiary}
+          style={{ fontFamily: font.black, fontSize: 23, letterSpacing: -1 }}
         >
           {rated ? String(g.ampScore) : '—'}
-        </Text>
+        </GlossText>
         <Text variant="tab" tone="tertiary">
           amp score
         </Text>

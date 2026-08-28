@@ -10,9 +10,9 @@ import { Button, IconButton } from '../ui/Button';
 import { ScoreCard } from '../ui/ScoreCard';
 import { useColors, space, radius, font } from '../theme';
 import { useStore } from '../state/store';
-import { components, composite } from '../ampScore';
+import { rollUp, confidenceFor } from '../indicators';
 import { currentReport } from '../reportData';
-import { kpiIndex, tierOf } from '../report';
+import { scoresOf, tierOf, resultOf } from '../report';
 
 /**
  * the card, and getting it off the phone.
@@ -24,12 +24,6 @@ import { kpiIndex, tierOf } from '../report';
  */
 const EXPORT_WIDTH = 1080;
 
-/** the age group this athlete plays in, from their age. */
-function ageBandFor(years: number): string {
-  for (const b of [9, 11, 13, 15, 17, 19]) if (years <= b) return `u${b}`;
-  return 'open';
-}
-
 export function ShareCardScreen({ onClose }: { onClose: () => void }) {
   const c = useColors();
   const insets = useSafeAreaInsets();
@@ -39,10 +33,16 @@ export function ShareCardScreen({ onClose }: { onClose: () => void }) {
 
   const exportRef = useRef<View>(null);
 
-  const parts = components(progression);
-  const score = composite(parts);
-  const index = kpiIndex(tierOf(currentReport));
-  const strength = index.get(currentReport.strengthId)?.name;
+  // the card is the report's card: the six indicators and the rating are the
+  // kpi sheet rolled up, not the funnel composite. a sheet with no indicator
+  // split yet still has a rating, so the card degrades to the number alone
+  // rather than inventing six.
+  const roll = rollUp(scoresOf(currentReport), tierOf(currentReport));
+  // without a share table there are no six, but there is still a rating and
+  // still a coverage — so the provisional rule holds either way.
+  const sheet = resultOf(currentReport);
+  const rating = roll ? roll.rating : sheet.overall;
+  const coverage = roll ? roll.coverage : sheet.observed / sheet.possible;
 
   const preview = Math.min(width - space.gutter * 2, 340);
 
@@ -52,10 +52,12 @@ export function ShareCardScreen({ onClose }: { onClose: () => void }) {
       name={profile.name || 'your name'}
       discipline={profile.discipline}
       club={profile.level}
-      ageBand={ageBandFor(profile.ageYears)}
-      score={score}
-      components={parts}
-      strength={strength}
+      rating={rating}
+      results={roll?.results ?? []}
+      coverage={coverage}
+      confidence={confidenceFor(coverage)}
+      tier={roll?.tier ?? null}
+      provisional={coverage < 0.6}
     />
   );
 
@@ -104,40 +106,53 @@ export function ShareCardScreen({ onClose }: { onClose: () => void }) {
         {card(preview)}
 
         <View style={{ alignSelf: 'stretch', gap: space.sm }}>
-          {parts.map((p) => (
-            <View
-              key={p.id}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: space.md,
-                paddingHorizontal: space.lg,
-                paddingVertical: space.md,
-                borderRadius: radius.md,
-                backgroundColor: c.surface,
-              }}
-            >
-              <Text variant="callout" style={{ flex: 1 }}>
-                {p.label}
+          {roll ? (
+            <>
+              {roll.results.map((r) => (
+                <View
+                  key={r.indicator.id}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: space.md,
+                    paddingHorizontal: space.lg,
+                    paddingVertical: space.md,
+                    borderRadius: radius.md,
+                    backgroundColor: c.surface,
+                  }}
+                >
+                  <Text variant="callout" style={{ flex: 1 }}>
+                    {r.indicator.label}
+                  </Text>
+                  {r.score === null ? (
+                    <Text variant="caption" tone="tertiary">
+                      not assessable this session
+                    </Text>
+                  ) : (
+                    <Text variant="callout" style={{ fontFamily: font.bold }}>
+                      {String(Math.round(r.score))}
+                    </Text>
+                  )}
+                  {/* each indicator's own coverage, because the card rating's
+                      coverage says nothing about which of the six is thin */}
+                  <Text variant="tab" tone="tertiary" style={{ width: 40, textAlign: 'right' }}>
+                    {`${Math.round(r.coverage * 100)}%`}
+                  </Text>
+                </View>
+              ))}
+              <Text variant="caption" tone="tertiary">
+                the right-hand figure is coverage — how much of that indicator this session could
+                actually see. a check that couldn't be assessed leaves the average entirely; it is
+                never counted as a zero.
               </Text>
-              {p.score === null ? (
-                <Text variant="caption" tone="tertiary">
-                  {p.empty}
-                </Text>
-              ) : (
-                <Text variant="callout" style={{ fontFamily: font.bold }}>
-                  {String(p.score)}
-                </Text>
-              )}
-              <Text variant="tab" tone="tertiary" style={{ width: 30, textAlign: 'right' }}>
-                {`${p.weight}%`}
-              </Text>
-            </View>
-          ))}
-          <Text variant="caption" tone="tertiary">
-            unused components are left out of the average, not counted as zero.
-          </Text>
+            </>
+          ) : (
+            <Text variant="caption" tone="tertiary">
+              this sheet has no indicator split yet, so the card prints the rating on its own.
+            </Text>
+          )}
         </View>
+
       </ScrollView>
 
       <View

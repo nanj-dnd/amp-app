@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useColors, space, radius } from '../../theme';
+import { useColors, space, radius, METALS } from '../../theme';
 import { Text } from '../../ui/Text';
 import { Touch } from '../../ui/Pressable';
+import { MetalFill } from '../../ui/Metal';
 
 /** big single-choice row. 56pt tall so it's a comfortable thumb target. */
 export function OptionRow({
@@ -44,12 +45,14 @@ export function OptionRow({
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: selected ? c.brand : c.fill,
+            backgroundColor: selected ? METALS.brand.base : c.fill,
+            overflow: 'hidden',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          {glyph(selected ? '#FFFFFF' : c.textSecondary)}
+          {selected && <MetalFill metal="brand" />}
+          {glyph(selected ? METALS.brand.ink : c.textSecondary)}
         </View>
       )}
       <View style={{ flex: 1, gap: 1 }}>
@@ -93,12 +96,14 @@ export function Choice<T extends string>({
               borderRadius: radius.pill,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: on ? c.brand : c.fill,
+              backgroundColor: on ? METALS.brand.base : c.fill,
+              overflow: 'hidden',
               borderWidth: StyleSheet.hairlineWidth,
-              borderColor: on ? c.brand : 'transparent',
+              borderColor: 'transparent',
             }}
           >
-            <Text variant="callout" tone={on ? 'onBrand' : 'secondary'}>
+            {on && <MetalFill metal="brand" />}
+            <Text variant="callout" color={on ? METALS.brand.ink : c.textSecondary}>
               {o.label}
             </Text>
           </Touch>

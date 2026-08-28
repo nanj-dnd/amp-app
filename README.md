@@ -248,27 +248,207 @@ thing you act on.
 were terrible at this" when it means "this didn't come up". that distinction is
 in the workbook and it survives all the way to the card.
 
+## the six indicators
+
+`src/indicators.ts`, generated from `amp_card_indicators.xlsx`, with the
+workbook's own worked example asserted in `src/indicators.test.ts` — if those
+drift, the app and the workbook disagree and one of them is lying.
+
+**nobody reads nineteen numbers off a card.** the kpi sheets score technique row
+by row; each row's points are split across six indicators by a share summing to
+1.00, and the card prints the six. no indicator is a single section renamed —
+every one draws on kpis from three or more sections, because "balance" is a
+property of the whole action, not of the setup rows.
+
+**blank versus zero survives intact, and is the reason this is honest.** a kpi
+that couldn't be assessed — wrong camera angle, no back-foot ball in the
+session — leaves *both* sides of the fraction rather than counting as nought.
+that is also why every indicator carries its own coverage.
+
+**only pace and spin have share tables.** foundation and development are
+deliberately absent rather than guessed at: an invented share would print a
+confident indicator on evidence nobody assigned. `rollUp` returns null for a
+tier it has no shares for and the card falls back to the rating alone.
+
+## metal
+
+`src/theme/tokens.ts` holds the five metals; `src/ui/Metal.tsx` draws all of
+them. colour on this platform is metal — vivid, but lit rather than loud.
+
+**one light source.** every metal is a diagonal body gradient lit from the top
+left plus a specular in the same corner, and it all comes from `Metal.tsx` so
+the product has exactly one lamp. draw a gradient per-component and a screen of
+badges looks like a screen of stickers.
+
+**restraint is the whole trick.** the first pass ran the speculars at 0.4–0.5
+alpha and derived the sheen stops a third of the way to white, which read as wet
+plastic rather than metal. everything is now around two thirds of that: enough
+to say the surface is lit, not enough to look at on its own. a highlight that
+competes with the number printed on it is a bevel from 2008.
+
+**the gloss scales down as the surface grows,** because a fixed ratio does not.
+a real specular is roughly a fixed angular size, so the bigger the object the
+less of it the highlight covers — but the sheen was a flat 46% of the height,
+which is a 14px band on a chip and a 70px wash on a card. the fills measure
+themselves now: the band is capped in points and its alpha drops on anything
+over ~90pt tall.
+
+the body gradient does the same, and that turned out to matter more. hi → base →
+deep is a lit edge on a chip and a bright corner plus a dark one on a full-width
+card — at that size the surface stops reading as one piece of metal and starts
+reading as a gradient someone applied to a box. large plates pull both ends
+toward their base and keep the fall gentle. the goal card on the road was the
+case that made this obvious.
+
+**`ink`, never white.** the only colour allowed on top of a metal is a deep
+tint of the metal itself. white on a light metal — gold, and everything above
+it — is where premium turns into cheap.
+
+**the score bands are not metals.** poor/fair/good/elite are semantic and can't
+be swapped for bronze/silver/gold: a "poor" band is not bronze. they keep their
+own hue and borrow the same light through `SheenBar`.
+
+**a coloured number is struck too.** every other glossy thing is a surface with
+a gradient behind it, but a score is type, and react native cannot pour a
+gradient into a glyph. `src/ui/GlossText.tsx` draws the number twice: once as a
+real `<Text>` at zero opacity, purely to hold its place in the layout and report
+its measured size, and once as svg text laid over that hole with the gradient as
+its fill. measuring rather than estimating matters — these numbers change width
+with their value and with the platform's font metrics, and a guessed box clips
+the last digit. it resolves the `variant` itself as well as the inline style,
+in that order: `<Text>` applies its variant's size and family internally, so
+reading the style prop alone left svg drawing a 16px system-font number over a
+34px archivo hole.
+
+**dots stay flat.** the league dot, the chart legend dots, the on-strike marker
+and `BandDot` are 6–9px. a three-stop gradient across eight pixels is one pixel
+per stop: it reads as a smudge, not as metal. below about 16px a colour is a
+marker, not a surface.
+
+**only tinted numbers are struck.** a black number has no colour to catch light
+and a gradient on it just looks grubby, so `GlossText` is for the band colours,
+the league and the streak — not for body text.
+
+**every gradient id is per-instance.** on web, react-native-svg renders into the
+one document, where `url(#body)` resolves against the whole page rather than the
+`<svg>` it was written in. a shared id silently paints every metal on screen in
+whichever one mounted first — a wall of bronze, silver and gold badges came out
+uniformly green exactly once.
+
+## badges
+
+`src/badges.ts` derives them, `src/ui/Badges.tsx` draws them, and they live on
+the profile screen under identity — they are the part of the profile the
+athlete didn't type in.
+
+**nothing is stored.** every badge is a question asked of the progression on
+render, so they cannot drift out of sync with what they claim to describe and a
+reset clears them for free.
+
+**earned on the best, never the latest.** a rating that dips the week after does
+not take a badge back. earning something and watching it disappear is the
+fastest way to stop trying.
+
+**a badge carries its own metal.** the four tier badges wear the metal they are
+named after; everything else wears amp's own. a locked badge wears none at all
+— an absence of metal is a much better signal than a greyed-out copy of one,
+and the locked progress bar is already filling in the metal it is working
+toward, so the bar is a preview of the badge rather than a generic meter.
+
+**the tier names follow the workbook** (bronze/silver/gold/elite), not the
+reference mockup's silver/gold/platinum/elite — two ladders for one idea is how
+a player ends up "platinum" on a card that has never heard of platinum.
+
 ## the score card
 
 `src/ui/ScoreCard.tsx` renders it; `src/screens/ShareCard.tsx` previews and
-exports it. `design/amp-score-card.svg` is the same design as a standalone file.
+exports it. `design/amp-score-card.svg` is the same design as a standalone file,
+rendered by `design/render.mjs`.
 
 **it is deliberately not themed.** a card that lands in someone's whatsapp is an
-artefact, not a screen, so it holds one look wherever it was made. the ground is
-brand green with the road receding into it, because the first job of the image
-is to say "amp" before anyone reads a number. the previous version was a
-gold-to-brown gradient — the gold fought the brand, and gold is already the
-"fair" band colour, so a good score and a mediocre one looked the same.
+artefact, not a screen, so it holds one look wherever it was made.
 
-**one bar, not three.** three separate bars implied three scores. there is one
-score made of three parts, so the composition is one bar segmented by weight,
-with each part's number under it.
+**the whole plate is the rating.** it was brand green with the tier struck into
+a chip in one corner, which made the loudest thing on the card the brand and the
+earned thing a detail. the card is now the metal itself: a bronze player and an
+elite player hold visibly different objects, and the tier needs no chip to
+announce itself. everything printed on it is that metal's ink — never white,
+which on a light metal is where premium turns cheap — and the meters are struck
+in its own polish so they read as inlay rather than paint.
 
-**the amp score is a weighted mean that skips what it can't see.** report 55,
-game iq 25, coaching 20 — and a component nobody has rated yet is dropped from
-both sides of the average rather than counted as zero. an athlete with no coach
-isn't punished for the part of the product they haven't used. same rule as the
-kpi sheet, for the same reason.
+**no age band.** it was a filing category: useful to a coach reading a roster,
+meaningless on an image whose job is one number, and it cost the header its
+symmetry.
+
+**one rhythm, and everything on the axis.** every gap on the plate is one value
+or a clean fraction of it — including the gap between the indicator rows and the
+gap between their columns, so the six read as a grid rather than two rows that
+happen to be near each other. each cell is centred on its own column too: the
+numbers were left-aligned, which left a ragged right edge under a card whose
+every other element is centred on the plate's axis.
+
+**the number takes the slack.** the plate carries a fixed amount of furniture —
+name, six indicators, coverage, footer — and the layout used `space-between`,
+which divides whatever is left between all of them, so adding the indicator grid
+quietly crushed every gap at once and overran the plate. the rating now sits in
+a `flex: 1` block and centres in whatever room the rest doesn't want, which is
+also where the air belongs on a card like this.
+
+**the ground lost its road.** the mark's receding road used to run up it. at
+card scale the triangle apexed directly behind the name and the bar, so its
+edges cut diagonals through the numbers — texture that cost more than it gave.
+the mark says amp on its own.
+
+**two zones, and a rule between them.** the first two layouts hung six meters
+under a name and let `space-between` sort the gaps out, which read as a
+dashboard someone had screenshotted. a card that gets posted has to survive
+being a thumbnail: one number readable at 200px, one name, and the detail
+arranged so the eye can skip it. so the plate is a hero — all anyone sees in a
+feed — over a ruled stat sheet, which is what they get if they stop.
+
+**the meters are gone.** six bars under six numbers said the same thing twice
+and were the noisiest thing on the card. the ruled grid separates the six on its
+own. the tier rule under the rating went with them, for the same reason the tier
+chip went before it: the plate is the tier.
+
+**the hero is sized to leave air.** at a larger numeral the hero block filled
+its space exactly, which put the eyebrow under the wordmark and the top rule
+against the subtitle. a number that big was buying nothing a thumbnail could
+use.
+
+**the card prints six indicators, not three components.** it used to print the
+funnel composite — report 55, game iq 25, coaching 20. that described how much
+of the product an athlete had used, which is amp's business and not theirs. the
+card now prints the six-indicator model from `amp_card_indicators.xlsx`:
+balance, power, timing, control, footwork and cricket iq, three across and
+twice down. six in a single row is a row of digits nobody reads.
+
+**an n/a keeps its slot.** the meter track is drawn under every indicator
+whether or not it has a score, so an indicator this session couldn't see reads
+as an empty slot rather than vanishing off the card and leaving the athlete to
+count which one is missing.
+
+**no "strongest" block.** it was a second thing to read on an image whose job is
+one number, and it pushed the card to a 1.4 ratio to fit. the card is back to
+4:5 and the room went to the score.
+
+**archivo, or it isn't an amp card.** archivo is not a system font, so the svg
+mirror falls back to helvetica in any renderer that doesn't have it — which is
+how the committed png was once an amp card set in someone else's typeface.
+`node design/render.mjs` inlines the four faces expo loads (500/600/700/800),
+each under its own family name so nothing is synthesised, and writes the png.
+regenerate it after any change to the card; that render is the reference, not
+the svg.
+
+**coverage rides with the rating, always.** an 84 built on 40% coverage is not
+an 84, and the card is the one place that has to say so — a confident number on
+thin evidence is the failure mode that costs credibility. under 60% the card
+prints "provisional" on its face instead of a coverage figure.
+
+**the rating is not the mean of the six.** it is the whole achieved/possible
+fraction taken across every kpi at once, which is why it matches the card
+rating on the kpi sheet exactly. averaging the six would silently reweight them
+by nothing more than how much of each happened to be visible.
 
 **export** captures a copy rendered at a fixed 1080px, parked off-screen —
 capturing the on-screen card would bake in whatever width the device happened to

@@ -7,9 +7,10 @@ import { Segmented } from '../ui/Segmented';
 import { UploadSlot } from '../ui/Bits';
 import { Button } from '../ui/Button';
 import { Text } from '../ui/Text';
+import { MetalFill, withAlpha } from '../ui/Metal';
 import { Touch } from '../ui/Pressable';
 import { BatIcon, BallIcon } from '../ui/Icons';
-import { useColors, space, radius, font } from '../theme';
+import { useColors, space, radius, font, METALS } from '../theme';
 import { useStore } from '../state/store';
 import { profileSummary } from '../state/types';
 
@@ -47,9 +48,10 @@ export function RecordScreen({ go, onClose }: { go: (r: string) => void; onClose
     <Screen title={first ? 'your first report' : 'this week’s session'} eyebrow="record" onBack={onClose}>
       {first && (
         <Section>
-          <Card style={{ backgroundColor: c.brand, flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-            <Ionicons name="sparkles" size={20} color="rgba(255,255,255,0.85)" />
-            <Text variant="bodyStrong" tone="onBrand" style={{ flex: 1 }}>
+          <Card style={{ backgroundColor: METALS.brand.base, flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+            <MetalFill metal="brand" />
+            <Ionicons name="sparkles" size={20} color={withAlpha(METALS.brand.ink, 0.85)} />
+            <Text variant="bodyStrong" color={METALS.brand.ink} style={{ flex: 1 }}>
               your first report is free
             </Text>
           </Card>

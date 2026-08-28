@@ -3,10 +3,12 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../ui/Text';
+import { GlossText } from '../ui/GlossText';
+import { MetalFill, withAlpha } from '../ui/Metal';
 import { Touch } from '../ui/Pressable';
 import { Card } from '../ui/Card';
 import { IconButton } from '../ui/Button';
-import { useColors, space, radius, font } from '../theme';
+import { useColors, space, radius, font , METALS } from '../theme';
 import { TAB_BAR_SPACE } from '../ui/TabBar';
 import { useStore } from '../state/store';
 import { IQ_GAMES, replayGame, GROUP_LABELS, GROUP_ORDER, type IqGame } from '../gameiq';
@@ -200,11 +202,13 @@ function Lobby({
                   paddingHorizontal: space.lg,
                   height: 38,
                   borderRadius: radius.pill,
-                  backgroundColor: on ? c.brand : c.fill,
+                  backgroundColor: on ? METALS.brand.base : c.fill,
+                  overflow: 'hidden',
                 }}
               >
-                <Ionicons name={s.icon} size={15} color={on ? c.textOnBrand : c.textSecondary} />
-                <Text variant="callout" tone={on ? 'onBrand' : 'secondary'}>
+                {on && <MetalFill metal="brand" />}
+                <Ionicons name={s.icon} size={15} color={on ? METALS.brand.ink : c.textSecondary} />
+                <Text variant="callout" color={on ? METALS.brand.ink : c.textSecondary}>
                   {s.label}
                 </Text>
               </Touch>
@@ -256,7 +260,8 @@ function Lobby({
             haptic="light"
             onPress={() => onPlay(g)}
             style={{
-              backgroundColor: g.key === 'boss' ? c.brand : c.surface,
+              backgroundColor: g.key === 'boss' ? METALS.brand.base : c.surface,
+              overflow: 'hidden',
               borderRadius: radius.lg,
               borderWidth: g.key === 'boss' ? 0 : StyleSheet.hairlineWidth,
               borderColor: c.hairline,
@@ -264,20 +269,21 @@ function Lobby({
               gap: space.sm,
             }}
           >
+            {g.key === 'boss' && <MetalFill metal="brand" />}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
               <Ionicons
                 name={g.key === 'boss' ? 'shield-checkmark' : 'refresh-circle'}
                 size={15}
-                color={g.key === 'boss' ? 'rgba(255,255,255,0.7)' : c.brand}
+                color={g.key === 'boss' ? withAlpha(METALS.brand.ink, 0.72) : c.brand}
               />
-              <Text variant="eyebrow" color={g.key === 'boss' ? 'rgba(255,255,255,0.7)' : c.brand}>
+              <Text variant="eyebrow" color={g.key === 'boss' ? withAlpha(METALS.brand.ink, 0.72) : c.brand}>
                 {g.tag}
               </Text>
             </View>
-            <Text variant="heading" tone={g.key === 'boss' ? 'onBrand' : 'primary'}>
+            <Text variant="heading" color={g.key === 'boss' ? METALS.brand.ink : c.text}>
               {g.label}
             </Text>
-            <Text variant="callout" color={g.key === 'boss' ? 'rgba(255,255,255,0.78)' : c.textSecondary}>
+            <Text variant="callout" color={g.key === 'boss' ? withAlpha(METALS.brand.ink, 0.8) : c.textSecondary}>
               {g.blurb}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, marginTop: space.sm }}>
@@ -343,9 +349,15 @@ function Stat({ value, label, tint, icon }: { value: string; label: string; tint
     <View style={{ flex: 1, alignItems: 'center', paddingVertical: space.lg, gap: 3 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         {icon && <Ionicons name={icon} size={14} color={tint ?? c.text} />}
-        <Text style={{ fontFamily: font.black, fontSize: 19, letterSpacing: -0.6, color: tint ?? c.text }}>
-          {value}
-        </Text>
+        {/* only the tinted ones are struck — a black number has no colour to
+            catch light, and a gradient on it would just look grubby */}
+        {tint ? (
+          <GlossText color={tint} style={{ fontFamily: font.black, fontSize: 19, letterSpacing: -0.6 }}>
+            {value}
+          </GlossText>
+        ) : (
+          <Text style={{ fontFamily: font.black, fontSize: 19, letterSpacing: -0.6, color: c.text }}>{value}</Text>
+        )}
       </View>
       <Text variant="tab" tone="tertiary">
         {label}
@@ -361,7 +373,7 @@ function Rule() {
 
 function Meta({ icon, label, onBrand }: { icon: keyof typeof Ionicons.glyphMap; label: string; onBrand?: boolean }) {
   const c = useColors();
-  const tint = onBrand ? 'rgba(255,255,255,0.7)' : c.textTertiary;
+  const tint = onBrand ? withAlpha(METALS.brand.ink, 0.72) : c.textTertiary;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
       <Ionicons name={icon} size={12} color={tint} />

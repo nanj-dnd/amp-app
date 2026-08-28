@@ -1,212 +1,206 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { Text } from './Text';
 import { VectorMark } from './Logo';
-import { font, space, radius, bandFor, light } from '../theme';
-import { shares, type Component } from '../ampScore';
+import { font, METALS, type MetalId } from '../theme';
+import { MetalGround, withAlpha } from './Metal';
+import type { IndicatorResult, CardTier, Confidence } from '../indicators';
 
 /**
  * the shareable card.
  *
  * it is deliberately not themed — a card that arrives in someone's whatsapp is
- * an artefact, not a screen, so it holds one look wherever it was made. the
- * ground is the brand green with the road mark receding into it, because the
- * one thing this image has to do before it is read is say "amp".
+ * an artefact, not a screen, so it holds one look wherever it was made.
  *
- * the previous version was a gold-to-brown gradient with three loose bars on
- * it: the gold fought the brand, and three bars implied three scores when
- * there is only ever one, made of three parts.
+ * the whole plate is the rating: a bronze player and an elite player hold
+ * visibly different objects, and the tier needs no chip to announce itself.
+ * everything printed on it is that metal's ink, never white.
+ *
+ * this is the third layout and the first one that isn't a stack. the previous
+ * two hung six meters under a name and let the gaps sort themselves out, which
+ * read as a dashboard someone had screenshotted. a card that gets posted has to
+ * survive being a thumbnail: one number you can read at 200px, one name, and
+ * the detail arranged so the eye can skip it.
+ *
+ * so the plate is now two zones with a rule between them — the hero, which is
+ * all anyone sees in a feed, and a stat sheet, which is what they get if they
+ * stop. the hero is sized so the two zones leave real air between them: at a
+ * bigger numeral the block filled its space exactly, which put the eyebrow
+ * under the wordmark and the rule against the subtitle. a number that large
+ * was buying nothing a thumbnail could use. the meters are gone: six bars under six numbers said the same thing
+ * twice and were the noisiest thing on the card. the tier rule under the number
+ * went too, for the same reason as the chip before it — the plate is the tier.
+ *
+ * archivo at four weights: black for the wordmark, the rating and the name;
+ * bold for the six; medium for the lines that support them; semibold for the
+ * eyebrow, the tier and the footer.
  */
-
-const INK = '#FFFFFF';
-const GREEN_TOP = '#0B3F2C';
-const GREEN_BOT = '#186D4C';
 
 export type CardProps = {
   name: string;
   discipline: string;
   club?: string;
-  ageBand: string;
-  score: number | null;
-  components: Component[];
-  strength?: string;
+  /** the card rating: the whole achieved/possible fraction, not a mean */
+  rating: number | null;
+  results: IndicatorResult[];
+  coverage: number;
+  confidence: Confidence;
+  tier: CardTier | null;
+  provisional: boolean;
   /** 4:5 renders well in a feed; the width is whatever the container gives it */
   width: number;
 };
 
-export function ScoreCard({ name, discipline, club, ageBand, score, components: comps, strength, width }: CardProps) {
-  // 1.4 rather than 4:5 — at 1.25 the strength block ran off the bottom edge,
-  // and a taller card sits better in a story anyway
-  const height = width * 1.4;
-  const band = score === null ? 'fair' : bandFor(score);
-  const accent = light.score[band];
-  const parts = shares(comps);
-  const pad = width * 0.07;
+export function ScoreCard({
+  name,
+  discipline,
+  club,
+  rating,
+  results,
+  coverage,
+  confidence,
+  tier,
+  provisional,
+  width,
+}: CardProps) {
+  const height = width * 1.25;
+  // generous and equal on all four sides. the plate should read as a printed
+  // object with a margin, not as a screen with content pushed to the edges.
+  const pad = width * 0.08;
+  // one rhythm; every gap below is this or a stated fraction of it
+  const u = width * 0.045;
+
+  const metal: MetalId = tier ?? 'brand';
+  const m = METALS[metal];
+  const ink = m.ink;
+  const dim = withAlpha(ink, 0.58);
+  const faint = withAlpha(ink, 0.4);
+  // a true hairline vanishes at the 1080px export, so it scales with the plate
+  const hair = Math.max(StyleSheet.hairlineWidth, width * 0.0015);
+  const hairColor = withAlpha(ink, 0.16);
+
+  const rows = [results.slice(0, 3), results.slice(3, 6)];
 
   return (
-    <View
-      style={{
-        width,
-        height,
-        borderRadius: radius.xl,
-        overflow: 'hidden',
-        backgroundColor: GREEN_TOP,
-      }}
-    >
-      {/* ground: a gradient with the mark's road receding up it */}
-      <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
-        <Defs>
-          <LinearGradient id="g" x1="0" y1="0" x2="0.4" y2="1">
-            <Stop offset="0" stopColor={GREEN_TOP} />
-            <Stop offset="1" stopColor={GREEN_BOT} />
-          </LinearGradient>
-        </Defs>
-        <Rect x={0} y={0} width={width} height={height} fill="url(#g)" />
-        {/* the road, receding — kept faint and low so it reads as ground */}
-        <Path
-          d={`M ${width * 0.5 - width * 0.05} ${height * 0.52}
-              L ${width * 0.5 + width * 0.05} ${height * 0.52}
-              L ${width * 1.18} ${height}
-              L ${width * -0.18} ${height} Z`}
-          fill={INK}
-          opacity={0.035}
-        />
-        <Path
-          d={`M ${width * 0.5} ${height * 0.55} L ${width * 0.5} ${height}`}
-          stroke={INK}
-          strokeWidth={width * 0.014}
-          strokeDasharray={`${width * 0.055} ${width * 0.07}`}
-          opacity={0.06}
-        />
-      </Svg>
+    <View style={{ width, height, borderRadius: width * 0.055, overflow: 'hidden' }}>
+      <MetalGround metal={metal} width={width} height={height} radius={width * 0.055} />
 
-      <View style={{ flex: 1, padding: pad, justifyContent: 'space-between' }}>
-        {/* header: the mark, and who this is */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: width * 0.028 }}>
-          <VectorMark size={width * 0.075} color={INK} />
-          <Text style={{ fontFamily: font.black, fontSize: width * 0.072, letterSpacing: -width * 0.004, color: INK }}>
+      <View style={{ flex: 1, padding: pad }}>
+        {/* the mark, and the tier it is struck in */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: width * 0.024 }}>
+          <VectorMark size={width * 0.064} color={ink} />
+          <Text style={{ fontFamily: font.black, fontSize: width * 0.062, letterSpacing: -width * 0.004, color: ink }}>
             amp
           </Text>
           <View style={{ flex: 1 }} />
-          <View
-            style={{
-              paddingHorizontal: width * 0.032,
-              paddingVertical: width * 0.012,
-              borderRadius: radius.pill,
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.35)',
-            }}
-          >
-            <Text style={{ fontFamily: font.bold, fontSize: width * 0.033, letterSpacing: 0.6, color: INK }}>
-              {ageBand}
+          {tier && (
+            <Text style={{ fontFamily: font.semibold, fontSize: width * 0.028, letterSpacing: width * 0.005, color: dim }}>
+              {tier}
             </Text>
-          </View>
+          )}
         </View>
 
-        {/* the number, given the room it needs */}
-        <View style={{ alignItems: 'center' }}>
+        {/* the hero: what survives being a thumbnail */}
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <Text
+            style={{
+              fontFamily: font.semibold,
+              fontSize: width * 0.026,
+              letterSpacing: width * 0.006,
+              color: dim,
+              marginBottom: u * 0.4,
+            }}
+          >
+            amp score
+          </Text>
           <Text
             style={{
               fontFamily: font.black,
-              fontSize: width * 0.36,
-              lineHeight: width * 0.38,
-              letterSpacing: -width * 0.022,
-              color: INK,
+              fontSize: width * 0.28,
+              // kept above fontSize on purpose: a line box tighter than the
+              // glyph clips digits on android, and this card is exported, not
+              // laid out live, so there is no second chance to notice.
+              lineHeight: width * 0.3,
+              letterSpacing: -width * 0.017,
+              color: ink,
             }}
           >
-            {score === null ? '—' : String(score)}
+            {rating === null ? '—' : String(Math.round(rating))}
           </Text>
-          {/* a rule in the band colour instead of a word for it */}
-          <View
-            style={{
-              marginTop: width * 0.03,
-              width: width * 0.16,
-              height: width * 0.014,
-              borderRadius: width * 0.007,
-              backgroundColor: accent,
-            }}
-          />
+          <Text
+            style={{ fontFamily: font.black, fontSize: width * 0.05, color: ink, marginTop: u * 0.7 }}
+            numberOfLines={1}
+          >
+            {name}
+          </Text>
+          <Text style={{ fontFamily: font.medium, fontSize: width * 0.032, color: dim, marginTop: u * 0.15 }} numberOfLines={1}>
+            {club ? `${discipline} · ${club}` : discipline}
+          </Text>
         </View>
 
-        <View style={{ gap: width * 0.04 }}>
-          <View style={{ alignItems: 'center', gap: 2 }}>
-            <Text style={{ fontFamily: font.black, fontSize: width * 0.058, color: INK }} numberOfLines={1}>
-              {name}
-            </Text>
-            <Text style={{ fontFamily: font.medium, fontSize: width * 0.036, color: 'rgba(255,255,255,0.66)' }} numberOfLines={1}>
-              {club ? `${discipline} · ${club}` : discipline}
-            </Text>
-          </View>
-
-          {/* one bar, three parts — because there is one score, not three */}
-          <View style={{ gap: width * 0.022 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                height: width * 0.022,
-                borderRadius: width * 0.011,
-                overflow: 'hidden',
-                backgroundColor: 'rgba(255,255,255,0.16)',
-              }}
-            >
-              {parts.map((p, i) =>
-                p.share === 0 ? null : (
-                  <View
-                    key={p.id}
+        {/* the stat sheet: ruled, so the eye can skip it in a feed and read it
+            properly when it stops. an n/a keeps its cell — the athlete should
+            see which of the six this session couldn't assess. */}
+        <View style={{ borderTopWidth: hair, borderTopColor: hairColor }}>
+          {rows.map((row, ri) => (
+            <View key={ri} style={{ flexDirection: 'row', borderTopWidth: ri > 0 ? hair : 0, borderTopColor: hairColor }}>
+              {row.map((r, ci) => (
+                <View
+                  key={r.indicator.id}
+                  style={{
+                    flexGrow: 1,
+                    flexBasis: 0,
+                    alignItems: 'center',
+                    paddingVertical: u * 0.62,
+                    borderLeftWidth: ci > 0 ? hair : 0,
+                    borderLeftColor: hairColor,
+                  }}
+                >
+                  <Text
                     style={{
-                      flexGrow: p.share,
-                      flexBasis: 0,
-                      backgroundColor: INK,
-                      opacity: 1 - i * 0.3,
-                      marginRight: i < parts.length - 1 ? 2 : 0,
+                      fontFamily: font.bold,
+                      fontSize: width * 0.056,
+                      letterSpacing: -width * 0.002,
+                      color: r.score === null ? withAlpha(ink, 0.34) : ink,
                     }}
-                  />
-                ),
-              )}
-            </View>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {parts.map((p, i) => (
-                <View key={p.id} style={{ flexGrow: 1, flexBasis: 0, alignItems: i === 0 ? 'flex-start' : i === 1 ? 'center' : 'flex-end' }}>
-                  <Text style={{ fontFamily: font.bold, fontSize: width * 0.048, color: p.score === null ? 'rgba(255,255,255,0.42)' : INK }}>
-                    {p.score === null ? '—' : String(p.score)}
+                  >
+                    {r.score === null ? 'n/a' : String(Math.round(r.score))}
                   </Text>
-                  <Text style={{ fontFamily: font.medium, fontSize: width * 0.03, color: 'rgba(255,255,255,0.55)' }}>
-                    {`${p.label} ${p.weight}%`}
+                  <Text
+                    style={{ fontFamily: font.medium, fontSize: width * 0.026, color: dim, marginTop: u * 0.12 }}
+                    numberOfLines={1}
+                  >
+                    {r.indicator.label}
                   </Text>
                 </View>
               ))}
             </View>
-          </View>
+          ))}
+        </View>
 
-          {strength && (
-            <View
-              style={{
-                paddingHorizontal: width * 0.04,
-                paddingVertical: width * 0.03,
-                borderRadius: radius.md,
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                borderLeftWidth: 3,
-                borderLeftColor: accent,
-              }}
-            >
-              <Text style={{ fontFamily: font.semibold, fontSize: width * 0.028, letterSpacing: 0.8, color: 'rgba(255,255,255,0.6)' }}>
-                strongest
-              </Text>
-              <Text style={{ fontFamily: font.bold, fontSize: width * 0.04, color: INK }} numberOfLines={1}>
-                {strength}
-              </Text>
-            </View>
-          )}
-
+        {/* coverage rides with the rating, always. an 84 on 40% coverage is not
+            an 84, and the card is where that has to be said. */}
+        <View style={{ alignItems: 'center', marginTop: u * 0.8 }}>
+          <Text
+            style={{
+              fontFamily: font.medium,
+              fontSize: width * 0.026,
+              letterSpacing: 0.3,
+              textAlign: 'center',
+              color: provisional ? ink : dim,
+            }}
+          >
+            {provisional
+              ? `provisional · ${Math.round(coverage * 100)}% assessable`
+              : `${Math.round(coverage * 100)}% coverage · ${confidence} confidence`}
+          </Text>
           <Text
             style={{
               fontFamily: font.semibold,
-              fontSize: width * 0.03,
-              letterSpacing: 1.2,
-              color: 'rgba(255,255,255,0.45)',
-              textAlign: 'center',
+              fontSize: width * 0.026,
+              letterSpacing: width * 0.0014,
+              color: faint,
+              marginTop: u * 0.4,
             }}
           >
             tryamp.in

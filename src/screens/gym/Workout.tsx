@@ -3,9 +3,11 @@ import { View, ScrollView, TextInput, StyleSheet, Alert, KeyboardAvoidingView, P
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../../ui/Text';
+import { GlossText } from '../../ui/GlossText';
+import { MetalFill, SheenFill } from '../../ui/Metal';
 import { Touch } from '../../ui/Pressable';
 import { Button, IconButton } from '../../ui/Button';
-import { useColors, space, radius, font, type } from '../../theme';
+import { useColors, space, radius, font, type, METALS } from '../../theme';
 import { FullSheet } from '../../ui/Sheet';
 import { useStore, volumeOf, setsOf, lastPerformance, personalBest } from '../../state/store';
 import { EXERCISES, MUSCLES, ROUTINES, byId, fmtDuration } from '../../gym';
@@ -159,7 +161,13 @@ function Total({ label, value, tint }: { label: string; value: string; tint?: st
       <Text variant="tab" tone="tertiary">
         {label}
       </Text>
-      <Text style={{ fontFamily: font.bold, fontSize: 17, color: tint ?? c.text }}>{value}</Text>
+      {tint ? (
+        <GlossText color={tint} style={{ fontFamily: font.bold, fontSize: 17 }}>
+          {value}
+        </GlossText>
+      ) : (
+        <Text style={{ fontFamily: font.bold, fontSize: 17 }}>{value}</Text>
+      )}
     </View>
   );
 }
@@ -223,6 +231,7 @@ function ExerciseBlock({
                   height: 40,
                   borderRadius: radius.sm,
                   backgroundColor: s.done ? c.brandTint : c.fill,
+                  overflow: 'hidden',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
@@ -267,10 +276,12 @@ function ExerciseBlock({
                   borderRadius: radius.sm,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: s.done ? c.brand : c.fill,
+                  backgroundColor: s.done ? METALS.brand.base : c.fill,
+                  overflow: 'hidden',
                 }}
               >
-                <Ionicons name="checkmark" size={19} color={s.done ? c.textOnBrand : c.textTertiary} />
+                {s.done && <MetalFill metal="brand" />}
+                <Ionicons name="checkmark" size={19} color={s.done ? METALS.brand.ink : c.textTertiary} />
               </Touch>
             </View>
           );
@@ -425,10 +436,12 @@ function ExercisePicker({ onPick, onClose }: { onPick: (id: string) => void; onC
                   borderRadius: radius.pill,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: on ? c.brand : c.fill,
+                  backgroundColor: on ? METALS.brand.base : c.fill,
+                  overflow: 'hidden',
                 }}
               >
-                <Text variant="caption" tone={on ? 'onBrand' : 'secondary'}>
+                {on && <MetalFill metal="brand" />}
+                <Text variant="caption" color={on ? METALS.brand.ink : c.textSecondary}>
                   {m ?? 'all'}
                 </Text>
               </Touch>

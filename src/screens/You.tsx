@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen, Section } from '../ui/Screen';
 import { Card, Eyebrow, Divider } from '../ui/Card';
 import { Text } from '../ui/Text';
+import { GlossText } from '../ui/GlossText';
 import { Touch } from '../ui/Pressable';
 import { Button } from '../ui/Button';
 import { Segmented } from '../ui/Segmented';
@@ -11,10 +12,12 @@ import { Avatar, Input } from '../ui/Bits';
 import { ScrollPicker, PickerRow } from '../ui/ScrollPicker';
 import { Choice } from './onboarding/Controls';
 import { BatIcon, BallIcon, AllRounderIcon } from '../ui/Icons';
+import { BadgeGrid } from '../ui/Badges';
 import { useColors, space, radius, font, bandFor } from '../theme';
 import { useStore } from '../state/store';
 import { goalHeadline, templatesFor, formatMetric } from '../plan';
 import { leagueFor } from '../state/types';
+import { badgesFor, earnedCount } from '../badges';
 
 /**
  * one owner for every analysis parameter, plus the goal and the two pillars
@@ -25,6 +28,7 @@ export function YouScreen({ go }: { go: (r: string) => void }) {
   const c = useColors();
   const { profile: p, progression, settings, updateProfile, updateSettings, reset } = useStore();
   const league = leagueFor(progression.iqPoints);
+  const badges = badgesFor(progression);
 
   return (
     <Screen title="you">
@@ -51,12 +55,30 @@ export function YouScreen({ go }: { go: (r: string) => void }) {
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ flex: 1, gap: 2 }}>
               <Eyebrow style={{ marginBottom: 0 }}>amp score</Eyebrow>
-              <Text variant="score" color={progression.ampScore ? c.score[bandFor(progression.ampScore)] : c.textTertiary}>
+              <GlossText
+                variant="score"
+                color={progression.ampScore ? c.score[bandFor(progression.ampScore)] : c.textTertiary}
+              >
                 {progression.ampScore > 0 ? String(progression.ampScore) : '—'}
-              </Text>
+              </GlossText>
             </View>
             <Button label="share card" kind="secondary" size="sm" icon="share-outline" onPress={() => go('card')} />
           </View>
+        </Card>
+      </Section>
+
+      {/* badges sit under identity because that is what they are — the part of
+          the profile the athlete didn't type in */}
+      <Section
+        title="badges"
+        action={
+          <Text variant="caption" tone="tertiary">
+            {`${earnedCount(badges)} of ${badges.length} earned`}
+          </Text>
+        }
+      >
+        <Card>
+          <BadgeGrid badges={badges} />
         </Card>
       </Section>
 

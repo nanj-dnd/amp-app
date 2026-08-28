@@ -3,6 +3,8 @@ import { View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useColors, bandFor, radius, space, type } from '../theme';
 import { Text } from './Text';
+import { SheenBar } from './Metal';
+import { GlossText } from './GlossText';
 
 /**
  * the score reads as one object: number in ink, band as a tinted pill.
@@ -17,9 +19,9 @@ import { Text } from './Text';
 export function ScoreBadge({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
   const c = useColors();
   return (
-    <Text variant={size === 'sm' ? 'scoreSm' : 'score'} color={c.score[bandFor(value)]}>
+    <GlossText variant={size === 'sm' ? 'scoreSm' : 'score'} color={c.score[bandFor(value)]}>
       {String(value)}
-    </Text>
+    </GlossText>
   );
 }
 
@@ -81,14 +83,7 @@ export function Bar({ value, band }: { value: number; band?: ReturnType<typeof b
   const b = band ?? bandFor(value);
   return (
     <View style={{ height: 6, borderRadius: 3, backgroundColor: c.fill, overflow: 'hidden' }}>
-      <View
-        style={{
-          height: '100%',
-          width: `${Math.max(0, Math.min(100, value))}%`,
-          borderRadius: 3,
-          backgroundColor: c.score[b],
-        }}
-      />
+      <SheenBar color={c.score[b]} height={6} radius={3} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </View>
   );
 }

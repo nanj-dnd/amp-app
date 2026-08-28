@@ -5,10 +5,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Section } from '../../ui/Screen';
 import { Card, Divider } from '../../ui/Card';
 import { Text } from '../../ui/Text';
+import { MetalFill, withAlpha } from '../../ui/Metal';
 import { Touch } from '../../ui/Pressable';
 import { Button, IconButton } from '../../ui/Button';
 import { EmptyState } from '../../ui/Bits';
-import { useColors, space, radius, font } from '../../theme';
+import { useColors, space, radius, font, METALS } from '../../theme';
 import { useStore, volumeOf, setsOf } from '../../state/store';
 import { ROUTINES, fmtDuration } from '../../gym';
 
@@ -27,20 +28,21 @@ export function GymScreen({ go, onClose }: { go: (r: string) => void; onClose?: 
     >
       {gym.active && (
         <Section>
-          <Card onPress={() => go('workout')} style={{ backgroundColor: c.brand }}>
+          <Card onPress={() => go('workout')} style={{ backgroundColor: METALS.brand.base }}>
+            <MetalFill metal="brand" />
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
               <View style={{ flex: 1, gap: 3 }}>
-                <Text variant="eyebrow" color="rgba(255,255,255,0.62)">
+                <Text variant="eyebrow" color={withAlpha(METALS.brand.ink, 0.62)}>
                   in progress
                 </Text>
-                <Text variant="heading" tone="onBrand">
+                <Text variant="heading" color={METALS.brand.ink}>
                   {gym.active.name}
                 </Text>
-                <Text variant="caption" color="rgba(255,255,255,0.78)">
+                <Text variant="caption" color={withAlpha(METALS.brand.ink, 0.78)}>
                   {`${gym.active.exercises.length} exercises · ${fmtDuration(Date.now() - gym.active.startedAt)}`}
                 </Text>
               </View>
-              <Ionicons name="arrow-forward-circle" size={30} color="rgba(255,255,255,0.9)" />
+              <Ionicons name="arrow-forward-circle" size={30} color={withAlpha(METALS.brand.ink, 0.9)} />
             </View>
           </Card>
         </Section>
@@ -85,6 +87,7 @@ export function GymScreen({ go, onClose }: { go: (r: string) => void; onClose?: 
                     height: 36,
                     borderRadius: 18,
                     backgroundColor: c.brandTint,
+                    overflow: 'hidden',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
