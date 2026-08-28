@@ -356,9 +356,12 @@ falls back to a traced vector below 32px and anywhere it has to take a colour
 small sizes anyway). brand green is `#186D4C`, sampled off that artwork.
 
 **the app icon is the wordmark, not the mark.** `assets/icon.png` is `amp` set
-in archivo semibold, brand green, tracked -3% and centred on its ink box rather
-than its em box — the word is x-height plus one descender, so the em box would
-sit it low. the mark is a road seen in perspective and its lane dashes disappear
+in archivo semibold, brand green, at the face's own fit — tracking it tighter
+crowded the a-m junction and cost more at 29px than it bought at 1024. it is
+centred on the ink's *mass*, not on any box: the em box sits the word low
+(x-height plus one descender, nothing above) and the ink box sits it high (that
+descender is one thin stem against a heavy x-height block). the centroid is
+where the eye puts the middle, about 28px below the two. the mark is a road seen in perspective and its lane dashes disappear
 at 60px on a home screen, where the name still reads. cut at 1024 from the
 archivo ttf, opaque (ios rejects an icon with alpha) and left square for ios to
 round. `design/amp-icon.svg` is the same artwork as a standalone file.
