@@ -355,13 +355,20 @@ falls back to a traced vector below 32px and anywhere it has to take a colour
 (a raster can't go white on a green card, and the lane dashes stop resolving at
 small sizes anyway). brand green is `#186D4C`, sampled off that artwork.
 
-**the app icon is the wordmark, not the mark.** `assets/icon.png` is white with
-`amp` set in archivo extrabold, brand green, tracked -3% and centred on its ink
-box rather than its em box — the word is x-height plus one descender, so the em
-box would sit it low. the mark is a road seen in perspective and its lane dashes
-disappear at 60px on a home screen, where the name still reads. cut at 1024 from
-the archivo ttf, opaque (ios rejects an icon with alpha) and left square for ios
-to round. `design/amp-icon.svg` is the same artwork as a standalone file.
+**the app icon is the wordmark, not the mark.** `assets/icon.png` is `amp` set
+in archivo semibold, brand green, tracked -3% and centred on its ink box rather
+than its em box — the word is x-height plus one descender, so the em box would
+sit it low. the mark is a road seen in perspective and its lane dashes disappear
+at 60px on a home screen, where the name still reads. cut at 1024 from the
+archivo ttf, opaque (ios rejects an icon with alpha) and left square for ios to
+round. `design/amp-icon.svg` is the same artwork as a standalone file.
+
+**the tile is lit, not filled.** white, but with a bloom under the top edge, a
+settling of light at the foot, and the same top-down ramp through the letters,
+which carry a tight contact shadow and a hairline lit top edge. all of it is
+held to a few percent: a corner vignette reads as grime on a white tile, and
+anything heavier stops being shading and starts being a bevel. it survives the
+downsample — the word still reads at the 29px settings size.
 
 **light by default.** the app followed the os, which is why it kept opening
 dark. `settings.theme` is `light` unless you change it in **you → appearance**,
