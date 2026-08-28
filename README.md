@@ -365,10 +365,15 @@ round. `design/amp-icon.svg` is the same artwork as a standalone file.
 
 **the tile is lit, not filled.** white, but with a bloom under the top edge, a
 settling of light at the foot, and the same top-down ramp through the letters,
-which carry a tight contact shadow and a hairline lit top edge. all of it is
-held to a few percent: a corner vignette reads as grime on a white tile, and
-anything heavier stops being shading and starts being a bevel. it survives the
-downsample — the word still reads at the 29px settings size.
+which carry a tight contact shadow and a hairline lit top edge. over all of it
+a specular sweep — one blurred ellipse crossing the word at its middle, and on
+a white ground it has nothing to catch, so the green carries the shine: the
+same sweep again, harder, clipped to the letters. a straight edge would read as
+a band and a hard one as a 2008 home screen, so it is curved and fades out
+before it lands. everything here is held to a few percent: a corner vignette
+reads as grime on a white tile, and anything heavier stops being shading and
+starts being a bevel. it survives the downsample — the word still reads at the
+29px settings size.
 
 **light by default.** the app followed the os, which is why it kept opening
 dark. `settings.theme` is `light` unless you change it in **you → appearance**,
