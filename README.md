@@ -365,7 +365,8 @@ round. `design/amp-icon.svg` is the same artwork as a standalone file.
 
 **the tile is lit, not filled.** white, but with a bloom under the top edge, a
 settling of light at the foot, and the same top-down ramp through the letters,
-which carry a tight contact shadow and a hairline lit top edge. over all of it
+which carry a tight contact shadow, a hairline lit top edge and, at the foot,
+the light bouncing back off the tile. over all of it
 a specular sweep — one blurred ellipse crossing the word at its middle, and on
 a white ground it has nothing to catch, so the green carries the shine: the
 same sweep again, harder, clipped to the letters. a straight edge would read as

@@ -19,24 +19,24 @@
     </radialGradient>
     <!-- the glyph carries the same light; brand green #186D4C is the mean. -->
     <linearGradient id="ink" gradientUnits="userSpaceOnUse" x1="0" y1="376" x2="0" y2="648">
-      <stop offset="0" stop-color="#1E7C57"/>
-      <stop offset="1" stop-color="#196E4C"/>
+      <stop offset="0" stop-color="#218159"/>
+      <stop offset="1" stop-color="#196D4C"/>
     </linearGradient>
     <!-- the specular sweep: one ellipse, crossing the letters at their middle.
          a straight edge would look like a band, a hard edge like a 2008 home
          screen, so it is curved, blurred and fades out before it lands. -->
     <clipPath id="sweep"><ellipse cx="512" cy="-133" rx="840" ry="666"/></clipPath>
     <linearGradient id="sheen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="532">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.17"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
     <!-- on a white ground the sweep has nothing to catch, so the green carries
          the shine: the same sweep again, harder, clipped to the letters. -->
     <linearGradient id="sheenInk" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="532">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="soften"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="soften"><feGaussianBlur stdDeviation="13"/></filter>
 
     <!-- a contact shadow, offset down only: the word sits on the tile. -->
     <filter id="contact" x="-10%" y="-10%" width="120%" height="130%">
@@ -50,7 +50,8 @@
 
   <!-- archivo semibold, tracked -3%, ink box centred on 512,512 at 70% width.
        cut to assets/icon.png from node_modules/@expo-google-fonts/archivo,
-       where the strokes also take a hairline lit top edge. -->
+       where the strokes also take a hairline lit top edge and, at the foot,
+       the light bouncing back off the tile. -->
   <text x="153.8" y="581.75" font-size="382" font-weight="600" letter-spacing="-11.46"
         fill="url(#ink)" filter="url(#contact)">amp</text>
 
