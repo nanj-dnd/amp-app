@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif">
+  <!-- ios app icon. the wordmark alone: the mark is the road, and at 60px on a
+       home screen its lane dashes turn to mush, so the name carries it. white
+       ground because ios rounds and shadows the tile for you. -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+
+  <!-- archivo extrabold, tracked -3%, ink box centred on 512,512 at 70% width.
+       cut to assets/icon.png from node_modules/@expo-google-fonts/archivo. -->
+  <text x="153.5" y="573.75" font-size="348.75" font-weight="800" letter-spacing="-10.46" fill="#186D4C">amp</text>
+</svg>
