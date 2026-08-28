@@ -5,7 +5,9 @@
 binary. `npm run web` exists only because it is the fastest way to look at a
 change; the same code runs on device through expo go or a dev build.
 
-archivo everywhere, lowercase everywhere, one green taken from the mark.
+archivo everywhere, lowercase everywhere, one green taken from the mark. both
+the case and the face are enforced in `src/ui/Text.tsx`, the one component
+every string goes through — a caller picks a weight, never a family.
 
 ```bash
 npm start        # then i for simulator, or scan with expo go

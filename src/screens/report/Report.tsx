@@ -113,7 +113,7 @@ export function ReportScreen({
                 borderBottomColor: on ? c.brand : 'transparent',
               }}
             >
-              <Text variant="callout" tone={on ? 'brand' : 'secondary'} style={{ fontFamily: on ? font.bold : undefined }}>
+              <Text variant="callout" tone={on ? 'brand' : 'secondary'} style={on ? { fontFamily: font.bold } : null}>
                 {t.label}
               </Text>
             </Touch>
