@@ -170,3 +170,54 @@ export const sectionColours: Record<string, string> = {
   'follow-through': '#2E9E63',
   'shot-intelligence-pace-specific': '#B07A45',
 };
+
+
+/**
+ * every pace-sheet kpi, scored over the last twelve sessions. nulls are
+ * sessions where the kpi wasn't observable — the chart breaks the line there
+ * rather than joining across it and implying a reading that never happened.
+ */
+export const kpiHistory: Record<string, (number | null)[]> = {
+  'balanced-stance-weight-distribution': [66, 68, 75, 81, 82, 83, 85, 92, 95, 92, 88, 94],
+  'head-position-stillness-at-guard': [62, 66, 69, 75, 71, 66, 67, 65, 61, 56, 58, 64],
+  'bat-position-at-guard': [49, 49, 50, 54, 59, 62, 66, 62, 65, 59, 66, 68],
+  'backlift-height-timing-vs-pace': [41, 35, 32, 29, 32, 26, 32, 33, 32, 33, 36, 43],
+  'backlift-direction': [53, 50, 54, 52, 53, 47, 51, 46, 47, 51, 49, 49],
+  'front-foot-initiation-decisiveness-vs-pace': [69, 64, 69, 67, 66, 72, 69, 71, 69, 63, 58, 61],
+  'front-foot-landing-direction': [48, 43, 50, 48, 48, 43, 37, 44, 48, 42, 39, 36],
+  'head-weight-over-the-front-knee-at-contact': [47, 47, 52, 52, 52, 47, 50, 54, 51, 57, 61, 59],
+  'back-foot-initiation-decisiveness-vs-pace': [null, null, null, null, null, null, null, null, null, null, null, null],
+  'depth-balance-of-back-foot-movement': [null, null, null, null, null, null, null, null, null, null, null, null],
+  'weight-transfer-into-the-shot-vs-pace': [null, null, null, null, null, null, null, null, null, null, null, null],
+  'bat-face-control-at-contact': [50, 48, 47, 41, 41, 47, 42, 38, 35, 40, 35, 29],
+  'contact-point-under-the-eyes': [47, 53, 54, 50, 54, 56, 53, 54, 56, 53, 58, 64],
+  'top-hand-control-vs-bottom-hand-dominance': [49, 53, 53, 48, 48, 48, 45, 39, 37, 44, 50, 53],
+  'response-to-short-pitched-bowling': [48, null, null, 41, null, null, 55, null, null, 47, null, null],
+  'follow-through-extension-balance': [57, 51, 57, 60, 59, 66, 64, 64, 59, 54, 49, 46],
+  'head-stability-through-shot': [46, 49, 48, 47, 50, 51, 47, 50, 51, 58, 61, 57],
+  'length-line-judgement-under-pace': [53, 57, 53, 51, 48, 55, 58, 55, 60, 57, 53, 58],
+  'consistency-across-session': [59, 63, 63, 64, 67, 62, 62, 56, 51, 46, 40, 42],
+};
+
+/** which section each kpi belongs to, for grouping the picker. */
+export const kpiSection: Record<string, string> = {
+  'balanced-stance-weight-distribution': 'stance-setup',
+  'head-position-stillness-at-guard': 'stance-setup',
+  'bat-position-at-guard': 'stance-setup',
+  'backlift-height-timing-vs-pace': 'backlift',
+  'backlift-direction': 'backlift',
+  'front-foot-initiation-decisiveness-vs-pace': 'footwork-front-foot-deliveries-only',
+  'front-foot-landing-direction': 'footwork-front-foot-deliveries-only',
+  'head-weight-over-the-front-knee-at-contact': 'footwork-front-foot-deliveries-only',
+  'back-foot-initiation-decisiveness-vs-pace': 'footwork-back-foot-deliveries-only',
+  'depth-balance-of-back-foot-movement': 'footwork-back-foot-deliveries-only',
+  'weight-transfer-into-the-shot-vs-pace': 'footwork-back-foot-deliveries-only',
+  'bat-face-control-at-contact': 'bat-path-contact-pace-specific',
+  'contact-point-under-the-eyes': 'bat-path-contact-pace-specific',
+  'top-hand-control-vs-bottom-hand-dominance': 'bat-path-contact-pace-specific',
+  'response-to-short-pitched-bowling': 'bat-path-contact-pace-specific',
+  'follow-through-extension-balance': 'follow-through',
+  'head-stability-through-shot': 'follow-through',
+  'length-line-judgement-under-pace': 'shot-intelligence-pace-specific',
+  'consistency-across-session': 'shot-intelligence-pace-specific',
+};

@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import Svg, { Path, Line, Circle } from 'react-native-svg';
 import { Text } from './Text';
 import { Touch } from './Pressable';
@@ -22,16 +22,39 @@ export function SeriesChart({
   height = 190,
   min: minProp,
   max: maxProp,
+  /** a long legend scrolls sideways instead of wrapping into a wall of chips */
+  scrollLegend = false,
+  /** when one series must always be highlighted, e.g. picking a single kpi */
+  alwaysFocus = false,
+  initialFocus = null,
+  onFocus,
 }: {
   series: Series[];
   labels: [string, string, string];
   height?: number;
   min?: number;
   max?: number;
+  scrollLegend?: boolean;
+  alwaysFocus?: boolean;
+  initialFocus?: string | null;
+  onFocus?: (id: string | null) => void;
 }) {
   const c = useColors();
   const [w, setW] = useState(0);
-  const [focus, setFocus] = useState<string | null>(null);
+  const [focus, setFocusState] = useState<string | null>(initialFocus);
+
+  const setFocus = (id: string | null) => {
+    const next = alwaysFocus && id === null ? focus : id;
+    setFocusState(next);
+    onFocus?.(next);
+  };
+
+  // when the caller swaps the series out from under us, the old focus is stale
+  useEffect(() => {
+    if (focus && !series.some((s) => s.id === focus)) setFocusState(initialFocus ?? series[0]?.id ?? null);
+    else if (alwaysFocus && !focus) setFocusState(initialFocus ?? series[0]?.id ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [series, initialFocus]);
 
   // fit the axis to the data, snapped to 5s. every section lives between about
   // 45 and 70, and drawing that on a 0-100 axis turns seven trends into one
@@ -133,7 +156,7 @@ export function SeriesChart({
       </View>
 
       {/* the legend is the control, not a key */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
+      <Legend scroll={scrollLegend}>
         {series.map((s) => {
           const on = focus === s.id;
           return (
@@ -160,11 +183,22 @@ export function SeriesChart({
             </Touch>
           );
         })}
-      </View>
+      </Legend>
 
-      <Text variant="caption" tone="tertiary">
-        {focus ? 'tap again to show everything' : 'tap a section to bring it forward'}
-      </Text>
+      {!alwaysFocus && (
+        <Text variant="caption" tone="tertiary">
+          {focus ? 'tap again to show everything' : 'tap one to bring it forward'}
+        </Text>
+      )}
     </View>
+  );
+}
+
+function Legend({ scroll, children }: { scroll: boolean; children: React.ReactNode }) {
+  if (!scroll) return <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>{children}</View>;
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm }}>
+      {children}
+    </ScrollView>
   );
 }

@@ -56,10 +56,13 @@ the first version was a full-screen perspective ramp. it looked like the mark,
 but it pushed **this week** — the only thing you can act on — below the fold, and
 twelve weeks of empty tarmac is a lot of screen to say "not yet".
 
-the metaphor survives as a **strip**: a ribbon that narrows toward a flag, one
-chip per week, auto-scrolled to today. it costs about 70px, and the screen goes
-back to the work — what's live, what you're chasing, where you are, then this
-week's four actions.
+the metaphor survives as a **strip**: one chip per week on a single line,
+auto-scrolled to today. the first strip drew a tapering ribbon with a dashed
+centre line, which was a lot of drawing to say "these happen in order" — a rule
+through the middle says the same thing and lets the chips do the work. the goal
+flag is the last chip, the same size as the rest, because it is the last week
+rather than a separate object. review weeks carry a dot instead of a caption, so
+the row stays one height.
 
 `buildPlan()` makes one node per week between this monday and the goal date —
 **the cadence is one recording a week**, which is the assumption the product
@@ -273,6 +276,23 @@ be, so the same card would come out different on every phone. ios gets a `UTI`
 as well as a `mimeType`, per the sdk 57 sharing api. web has no capture path and
 the button says so.
 
+## growth
+
+**progress → overview leads with the normalised chart**, because the score
+itself is a number you already saw on the road; what you come here for is which
+parts of your game are moving.
+
+everything is rescaled to 0–100, so a 20-point section and a 3-point kpi sit on
+the same axis and can be compared directly. two modes:
+
+- **sections** — all seven at once, tap one to bring it forward
+- **single kpi** — pick any kpi from the sheet and see just that trend, with the
+  other eighteen dropped to faint context and the growth called out above the
+  chart (`94  +28  across 12 sessions`)
+
+that second mode is the one you want after a report has told you what to work
+on: *is this specific thing actually getting better*.
+
 ## what a match tells you about your game
 
 this is why the scorer is in this app rather than beside it.
@@ -369,15 +389,15 @@ views inside whichever screen opened them, which put them *under* the tab bar �
 a later sibling in the tree paints on top, and there are no portals in react
 native. `src/ui/Sheet.tsx` is the one primitive; every sheet in the app uses it.
 
-**batting and bowling get their own marks.** `src/ui/Icons.tsx` — bat, ball,
-all-rounder, stumps, road — drawn as solid silhouettes because a thin outline
-reads as a pen at 17px. ionicons only ships a baseball and a tennis ball, which
-are the same round object.
+**the cricket icons come from material community icons**, which ships an actual
+`cricket` glyph and is already bundled with `@expo/vector-icons` — no extra
+dependency, apache 2.0, no licensing question. these were hand-drawn svgs, and
+a hand-drawn bat has a ceiling at 17px: it reads as a trowel. one professionally
+drawn family beats three of mine.
 
-*swapping in a licensed icon pack:* that file is the only place the shapes are
-defined. add `react-native-svg-transformer`, drop the pack's svgs into
-`assets/icons`, and re-export them from `Icons.tsx` — nothing else imports the
-shapes.
+`src/ui/Icons.tsx` still wraps them, so call sites don't know where the shapes
+come from — change the `name` in that one file to move the whole app to another
+set.
 
 ## still to wire
 

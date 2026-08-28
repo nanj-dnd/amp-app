@@ -5,7 +5,7 @@ import { Screen, Section } from '../ui/Screen';
 import { Card, Divider } from '../ui/Card';
 import { Text } from '../ui/Text';
 import { Touch } from '../ui/Pressable';
-import { ScoreRing, Bar } from '../ui/Score';
+import { Bar } from '../ui/Score';
 import { StatTile, TileRow, EmptyState } from '../ui/Bits';
 import { SessionCard } from '../ui/SessionCard';
 import { SectionChart } from '../ui/SectionChart';
@@ -27,8 +27,11 @@ import {
   sectionBenchmarks,
   sectionHistory,
   sectionColours,
+  kpiHistory,
+  kpiSection,
   sessions as seed,
 } from '../data';
+import { SHEETS } from '../kpis';
 
 type View3 = 'overview' | 'technique' | 'spell' | 'matches';
 
@@ -67,7 +70,6 @@ export function ProgressScreen({ go, onClose }: { go: (r: string) => void; onClo
 function Overview({ go }: { go: (r: string) => void }) {
   const c = useColors();
   const { progression, profile } = useStore();
-  const [range, setRange] = useState<'30d' | '90d' | 'all'>('30d');
   const [list, setList] = useState(seed);
 
   const rated = progression.ampScore > 0;
@@ -85,28 +87,21 @@ function Overview({ go }: { go: (r: string) => void }) {
       </Section>
     );
 
-  const series = range === '30d' ? scoreHistory.slice(-14) : range === '90d' ? scoreHistory.slice(-24) : scoreHistory;
   const latest = progression.ampScore;
   const prev = scoreHistory[scoreHistory.length - 2];
   const best = Math.max(...scoreHistory);
 
   return (
     <>
+      {/* growth leads. the score is a number you already saw on the road; what
+          you came here for is which parts of your game are moving. */}
       <Section>
-        <Card style={{ alignItems: 'center', paddingVertical: space.xxl }}>
-          <ScoreRing value={latest} caption="amp score" />
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: space.lg }}>
-            <Ionicons name={latest >= prev ? 'arrow-up' : 'arrow-down'} size={13} color={latest >= prev ? c.score.good : c.score.poor} />
-            <Text variant="callout" color={latest >= prev ? c.score.good : c.score.poor}>
-              {`${(latest - prev).toFixed(1)} vs last session`}
-            </Text>
-          </View>
-        </Card>
+        <Growth />
       </Section>
 
       <Section gap={space.md}>
         <TileRow>
-          <StatTile value={String(list.length)} label="sessions" />
+          <StatTile value={String(latest)} label="amp score" tone={c.score[bandFor(latest)]} sub={`${latest >= prev ? '+' : ''}${(latest - prev).toFixed(1)} vs last`} />
           <StatTile value={String(best)} label="best" tone={c.score.good} />
         </TileRow>
         <TileRow>
@@ -115,22 +110,9 @@ function Overview({ go }: { go: (r: string) => void }) {
         </TileRow>
       </Section>
 
-      <Section title="score over time" action={
-        <View style={{ width: 148 }}>
-          <Segmented
-            size="sm"
-            value={range}
-            onChange={setRange}
-            options={[
-              { value: '30d', label: '30d' },
-              { value: '90d', label: '90d' },
-              { value: 'all', label: 'all' },
-            ]}
-          />
-        </View>
-      }>
+      <Section title="amp score over time">
         <Card>
-          <LineChart data={series} labels={['jul 2', 'jul 20', 'aug 26']} />
+          <LineChart data={scoreHistory.slice(-14)} labels={['jul 2', 'jul 20', 'aug 26']} />
         </Card>
       </Section>
 
@@ -147,6 +129,118 @@ function Overview({ go }: { go: (r: string) => void }) {
         ))}
       </Section>
     </>
+  );
+}
+
+/**
+ * the normalised growth chart.
+ *
+ * everything is rescaled to 0–100, so a 20-point section and a 3-point kpi sit
+ * on the same axis and can actually be compared. sections answers "which part
+ * of my game is moving"; kpis answers "is *this specific thing* getting better",
+ * which is the question you ask once a report has told you what to work on.
+ */
+function Growth() {
+  const c = useColors();
+  const { profile } = useStore();
+  const [mode, setMode] = useState<'sections' | 'kpis'>('sections');
+  const [picked, setPicked] = useState<string | null>(null);
+
+  const sheet = SHEETS.pace;
+  const kpiName = useMemo(() => {
+    const m = new Map<string, string>();
+    sheet.sections.forEach((s) => s.kpis.forEach((k) => m.set(k.id, k.name)));
+    return m;
+  }, [sheet]);
+
+  const sectionSeries: Series[] = useMemo(
+    () =>
+      sheet.sections
+        .filter((s) => sectionHistory[s.id])
+        .map((s) => ({
+          id: s.id,
+          label: s.name.replace(/ \(.*\)$/, '').replace('footwork: ', '').replace(' deliveries only', ''),
+          colour: sectionColours[s.id] ?? c.textSecondary,
+          points: sectionHistory[s.id],
+        })),
+    [sheet, c.textSecondary],
+  );
+
+  const kpiSeries: Series[] = useMemo(
+    () =>
+      Object.keys(kpiHistory)
+        // a kpi with nothing in it has no growth to show
+        .filter((id) => kpiHistory[id].some((v) => v !== null))
+        .map((id) => ({
+          id,
+          label: kpiName.get(id) ?? id,
+          colour: sectionColours[kpiSection[id]] ?? c.brand,
+          points: kpiHistory[id],
+        })),
+    [kpiName, c.brand],
+  );
+
+  const series = mode === 'sections' ? sectionSeries : kpiSeries;
+  const focused = series.find((s) => s.id === picked) ?? (mode === 'kpis' ? series[0] : undefined);
+
+  // the trend for whatever is currently highlighted
+  const trend = useMemo(() => {
+    if (!focused) return null;
+    const seen = focused.points.filter((v): v is number => v !== null);
+    if (seen.length < 2) return null;
+    return { now: seen[seen.length - 1], delta: seen[seen.length - 1] - seen[0], n: seen.length };
+  }, [focused]);
+
+  return (
+    <Card style={{ gap: space.lg }}>
+      <Segmented
+        size="sm"
+        value={mode}
+        onChange={(m) => {
+          setMode(m);
+          setPicked(null);
+        }}
+        options={[
+          { value: 'sections', label: 'sections' },
+          { value: 'kpis', label: 'single kpi' },
+        ]}
+      />
+
+      {focused && trend && (
+        <View style={{ gap: 2 }}>
+          {/* kpi names run long; two lines beats an ellipsis on the thing the
+              whole card is about */}
+          <Text variant="heading" numberOfLines={2}>
+            {focused.label}
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.sm }}>
+            <Text variant="score" color={c.score[bandFor(trend.now)]} style={{ fontSize: 30, lineHeight: 34 }}>
+              {String(trend.now)}
+            </Text>
+            <Text
+              variant="callout"
+              color={trend.delta === 0 ? c.textTertiary : trend.delta > 0 ? c.score.good : c.score.poor}
+              style={{ fontFamily: font.bold }}
+            >
+              {`${trend.delta > 0 ? '+' : ''}${trend.delta}`}
+            </Text>
+            <Text variant="caption" tone="tertiary">
+              {`across ${trend.n} sessions`}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      <SeriesChart
+        series={series}
+        labels={['s1', 's6', 's12']}
+        height={mode === 'kpis' ? 168 : 190}
+        scrollLegend={mode === 'kpis'}
+        alwaysFocus={mode === 'kpis'}
+        initialFocus={mode === 'kpis' ? series[0]?.id ?? null : null}
+        onFocus={setPicked}
+      />
+    </Card>
   );
 }
 
@@ -169,20 +263,6 @@ function Technique() {
   const bench = sectionBenchmarks[profile.level] ?? 58;
 
   const adult = profile.ageYears >= 15;
-
-  // one series per section of the sheet, coloured consistently
-  const series: Series[] = useMemo(
-    () =>
-      now.sections
-        .filter((s) => sectionHistory[s.section.id])
-        .map((s) => ({
-          id: s.section.id,
-          label: s.section.name.replace(/ \(.*\)$/, '').replace('footwork: ', '').replace(' deliveries only', ''),
-          colour: sectionColours[s.section.id] ?? c.textSecondary,
-          points: sectionHistory[s.section.id],
-        })),
-    [now.sections, c.textSecondary],
-  );
   const weakest = now.sections
     .filter((s) => s.score !== null)
     .sort((a, b) => (a.score ?? 0) - (b.score ?? 0))[0];
@@ -234,12 +314,6 @@ function Technique() {
       <Section title="sections" action={<Text variant="caption" tone="tertiary">{`vs ${profile.level}`}</Text>}>
         <Card>
           <SectionChart sections={now.sections} benchmark={bench} />
-        </Card>
-      </Section>
-
-      <Section title="sections over time">
-        <Card>
-          <SeriesChart series={series} labels={['s1', 's6', 's12']} />
         </Card>
       </Section>
 
