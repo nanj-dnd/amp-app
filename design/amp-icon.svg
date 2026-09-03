@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif">
+  <!-- ios app icon. the wordmark alone: the mark is the road, and at 60px on a
+       home screen its lane dashes turn to mush, so the name carries it. the
+       ground reads white but is lit from the top, the way an apple tile is,
+       and left square for ios to round. -->
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F3F3EE"/>
+    </linearGradient>
+    <radialGradient id="bloom" cx="0.5" cy="0" r="0.9">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- light settles at the foot. a corner vignette would read as grime. -->
+    <radialGradient id="floor" cx="0.5" cy="1.06" r="0.78">
+      <stop offset="0" stop-color="#E4E4DD" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#E4E4DD" stop-opacity="0"/>
+    </radialGradient>
+    <!-- the glyph carries the same light; brand green #186D4C is the mean. -->
+    <linearGradient id="ink" gradientUnits="userSpaceOnUse" x1="0" y1="408" x2="0" y2="672">
+      <stop offset="0" stop-color="#207F59"/>
+      <stop offset="1" stop-color="#196B4B"/>
+    </linearGradient>
+    <!-- the specular sweep: one ellipse, crossing the letters at their middle.
+         a straight edge would look like a band, a hard edge like a 2008 home
+         screen, so it is curved, blurred and fades out before it lands. -->
+    <clipPath id="sweep"><ellipse cx="512" cy="-133" rx="840" ry="666"/></clipPath>
+    <linearGradient id="sheen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="532">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.17"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <!-- on a white ground the sweep has nothing to catch, so the green carries
+         the shine: the same sweep again, harder, clipped to the letters. -->
+    <linearGradient id="sheenInk" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="532">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="soften"><feGaussianBlur stdDeviation="13"/></filter>
+
+    <!-- a contact shadow, offset down only: the word sits on the tile. -->
+    <filter id="contact" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4.6" stdDeviation="6" flood-color="#0C3A28" flood-opacity="0.13"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#ground)"/>
+  <rect width="1024" height="1024" fill="url(#bloom)"/>
+  <rect width="1024" height="1024" fill="url(#floor)"/>
+
+  <!-- archivo semibold at its own fit — no tracking, which crowded the a-m
+       junction and cost more at 29px than it bought at 1024. 70% of the tile
+       wide, and centred on the ink's mass rather than its box: 'amp' is one
+       thin descender against a heavy x-height block, so a box-centred word
+       reads high.  ink 149.4,408.4 to 866.4,671.7; mass on 512,512.
+       cut to assets/icon.png from node_modules/@expo-google-fonts/archivo,
+       where the strokes also take a hairline lit top edge and, at the foot,
+       the light bouncing back off the tile. -->
+  <text x="149.4" y="607.69" font-size="370.25" font-weight="600"
+        fill="url(#ink)" filter="url(#contact)">amp</text>
+
+  <g clip-path="url(#sweep)">
+    <rect width="1024" height="1024" fill="url(#sheen)" filter="url(#soften)"/>
+    <text x="149.4" y="607.69" font-size="370.25" font-weight="600"
+          fill="url(#sheenInk)">amp</text>
+  </g>
+</svg>

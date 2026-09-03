@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
-import { useColors, type } from '../theme';
+import { StyleSheet, Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
+import { useColors, font, type } from '../theme';
 
 type Variant = keyof typeof type;
 type Tone = 'primary' | 'secondary' | 'tertiary' | 'brand' | 'danger' | 'onBrand';
@@ -14,9 +14,12 @@ export type TextProps = RNTextProps & {
   align?: TextStyle['textAlign'];
 };
 
+const FACES: readonly string[] = Object.values(font);
+
 /**
  * every string in the app goes through here. the lowercasing lives in one
- * place so copy can be written normally and still render as amp.
+ * place so copy can be written normally and still render as amp, and the
+ * archivo face is guaranteed — a caller can pick a weight, never a family.
  */
 export function Text({
   variant = 'body',
@@ -29,6 +32,16 @@ export function Text({
   ...rest
 }: TextProps) {
   const c = useColors();
+  const base = type[variant];
+
+  // a passed style wins the flatten, so `fontFamily: undefined` on it — or a
+  // bare fontSize on a caller that forgot the variant — would hand the string
+  // to the system font. resolve the face here and put it back last.
+  const flat = StyleSheet.flatten(style);
+  const family = flat?.fontFamily ?? base.fontFamily;
+  if (__DEV__ && !FACES.includes(family)) {
+    console.warn(`<Text> font must be archivo, got "${family}". use one of theme font.*.`);
+  }
 
   const toneColor =
     color ??
@@ -46,7 +59,7 @@ export function Text({
       {...rest}
       // ios accessibility text-sizing is respected but capped so cards don't explode
       maxFontSizeMultiplier={1.4}
-      style={[type[variant], { color: toneColor, textAlign: align }, style]}
+      style={[base, { color: toneColor, textAlign: align }, flat, { fontFamily: family }]}
     >
       {preserveCase ? children : lower(children)}
     </RNText>

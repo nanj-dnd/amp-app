@@ -177,7 +177,7 @@ export function SeriesChart({
               }}
             >
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: s.colour }} />
-              <Text variant="tab" tone={on ? 'brand' : 'secondary'} style={{ fontFamily: on ? font.bold : undefined }}>
+              <Text variant="tab" tone={on ? 'brand' : 'secondary'} style={on ? { fontFamily: font.bold } : null}>
                 {s.label}
               </Text>
             </Touch>

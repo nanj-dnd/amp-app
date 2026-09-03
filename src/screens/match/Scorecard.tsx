@@ -202,7 +202,7 @@ function Row({ cols, head, bare }: { cols: string[]; head?: boolean; bare?: bool
             flex: widths[i] === null ? 1 : undefined,
             width: widths[i] ?? undefined,
             textAlign: i === 0 ? 'left' : 'right',
-            fontFamily: head ? undefined : i === 0 || i === 1 ? font.bold : font.regular,
+            ...(head ? null : { fontFamily: i === 0 || i === 1 ? font.bold : font.regular }),
           }}
         >
           {v}
