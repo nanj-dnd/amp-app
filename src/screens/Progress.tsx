@@ -13,6 +13,7 @@ import { SessionCard } from '../ui/SessionCard';
 import { SectionChart } from '../ui/SectionChart';
 import { ScoringAreas } from '../ui/ScoringAreas';
 import { Segmented } from '../ui/Segmented';
+import { Reveal, Chevron } from '../ui/Reveal';
 import { Button, IconButton } from '../ui/Button';
 import { LineChart } from '../ui/Chart';
 import { SeriesChart, type Series } from '../ui/SeriesChart';
@@ -35,11 +36,11 @@ import {
 } from '../data';
 import { SHEETS } from '../kpis';
 
-type View3 = 'overview' | 'technique' | 'spell' | 'matches';
+type ProgressView = 'overview' | 'sessions' | 'technique' | 'spell' | 'matches';
 
 export function ProgressScreen({ go, onClose }: { go: (r: string) => void; onClose?: () => void }) {
   const { profile } = useStore();
-  const [view, setView] = useState<View3>('overview');
+  const [view, setView] = useState<ProgressView>('overview');
   // ball by ball reads a spell, so it only exists for someone who bowls
   const bowls = profile.discipline !== 'batting';
 
@@ -52,6 +53,7 @@ export function ProgressScreen({ go, onClose }: { go: (r: string) => void; onClo
           onChange={setView}
           options={[
             { value: 'overview', label: 'overview' },
+            { value: 'sessions', label: 'sessions' },
             { value: 'technique', label: 'technique' },
             ...(bowls ? [{ value: 'spell' as const, label: 'ball by ball' }] : []),
             { value: 'matches', label: 'matches' },
@@ -60,6 +62,7 @@ export function ProgressScreen({ go, onClose }: { go: (r: string) => void; onClo
       </Section>
 
       {view === 'overview' && <Overview go={go} />}
+      {view === 'sessions' && <Sessions go={go} />}
       {view === 'technique' && <Technique />}
       {view === 'spell' && bowls && <Spell />}
       {view === 'matches' && <Matches go={go} />}
@@ -72,7 +75,6 @@ export function ProgressScreen({ go, onClose }: { go: (r: string) => void; onClo
 function Overview({ go }: { go: (r: string) => void }) {
   const c = useColors();
   const { progression } = useStore();
-  const [list, setList] = useState(seed);
 
   const rated = progression.ampScore > 0;
   if (!rated)
@@ -117,19 +119,49 @@ function Overview({ go }: { go: (r: string) => void }) {
           <LineChart data={scoreHistory.slice(-14)} labels={['jul 2', 'jul 20', 'aug 26']} />
         </Card>
       </Section>
-
-      <Section title="sessions">
-        {list.map((s) => (
-          <SessionCard
-            key={s.id}
-            kind={s.kind}
-            when={s.when}
-            score={s.score}
-            onDelete={() => setList((l) => l.filter((x) => x.id !== s.id))}
-          />
-        ))}
-      </Section>
     </>
+  );
+}
+
+/* -------------------------------------------------------------- sessions */
+
+/**
+ * every session filmed, newest first.
+ *
+ * this was the tail of the overview, below the score, the tiles and the chart —
+ * which put the one list you scroll *through* at the bottom of a screen you
+ * scroll *down*, and made the overview two screens pretending to be one. it is
+ * a log, and a log deserves its own place rather than the end of a summary.
+ */
+function Sessions({ go }: { go: (r: string) => void }) {
+  const [list, setList] = useState(seed);
+
+  if (list.length === 0)
+    return (
+      <Section>
+        <Card>
+          <EmptyState
+            icon="videocam-outline"
+            title="no sessions yet"
+            body="film one and it lands here with its score."
+            action={<Button label="film a session" icon="add" onPress={() => go('record')} />}
+          />
+        </Card>
+      </Section>
+    );
+
+  return (
+    <Section gap={space.md}>
+      {list.map((s) => (
+        <SessionCard
+          key={s.id}
+          kind={s.kind}
+          when={s.when}
+          score={s.score}
+          onDelete={() => setList((l) => l.filter((x) => x.id !== s.id))}
+        />
+      ))}
+    </Section>
   );
 }
 
@@ -403,10 +435,10 @@ function SectionRows({
         >
           {result.score === null ? '—' : String(result.score)}
         </GlossText>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={15} color={c.textTertiary} />
+        <Chevron open={open} color={c.textTertiary} />
       </Touch>
 
-      {open && (
+      <Reveal open={open}>
         <View style={{ paddingHorizontal: space.xl, paddingBottom: space.lg, gap: space.md }}>
           {result.kpis.map((k) => (
             <View key={k.kpi.id} style={{ gap: 5, opacity: k.score === null ? 0.45 : 1 }}>
@@ -427,7 +459,7 @@ function SectionRows({
             </View>
           ))}
         </View>
-      )}
+      </Reveal>
     </View>
   );
 }

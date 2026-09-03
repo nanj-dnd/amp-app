@@ -3,6 +3,8 @@ import { useColorScheme } from 'react-native';
 import { light, dark, type Palette } from './tokens';
 
 export * from './tokens';
+export * from './motion';
+export * from './reduceMotion';
 
 const ThemeCtx = createContext<Palette>(light);
 

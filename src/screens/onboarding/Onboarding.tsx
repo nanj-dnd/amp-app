@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Animated, Easing, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useColors, space, radius, font, METALS } from '../../theme';
+import { useColors, space, radius, font, METALS, useReduceMotion } from '../../theme';
 import { Text } from '../../ui/Text';
 import { MetalFill } from '../../ui/Metal';
 import { Button, IconButton } from '../../ui/Button';
@@ -381,6 +381,7 @@ function Wheel({ label, children }: { label: string; children: React.ReactNode }
 function Greeting({ onStart }: { onStart: () => void }) {
   const c = useColors();
   const insets = useSafeAreaInsets();
+  const reduce = useReduceMotion();
   const rise = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -403,7 +404,11 @@ function Greeting({ onStart }: { onStart: () => void }) {
           justifyContent: 'center',
           gap: space.lg,
           opacity: rise,
-          transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
+          // the fade carries the meaning; the 16px of travel is decoration, so
+          // it is the part that goes when motion is reduced.
+          transform: reduce
+            ? []
+            : [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }],
         }}
       >
         <LogoMark size={56} />

@@ -2,10 +2,11 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useColors, space, radius, bandFor, font } from '../theme';
+import { useColors, space, radius, bandFor, font, METALS, type MetalId } from '../theme';
 import { Text } from './Text';
 import { GlossText } from './GlossText';
 import { Touch } from './Pressable';
+import { MetalCircle, SheenFill, inkFor, withAlpha } from './Metal';
 import { useStore } from '../state/store';
 import { leagueFor } from '../state/types';
 
@@ -14,6 +15,14 @@ import { leagueFor } from '../state/types';
  * league sit beside it because game iq runs daily and is what keeps the app
  * being opened; there is no currency here, because nothing is bought with one.
  */
+/** sapphire sits above gold, so it borrows the platinum at the top of the ladder. */
+const LEAGUE_METAL: Record<string, MetalId> = {
+  bronze: 'bronze',
+  silver: 'silver',
+  gold: 'gold',
+  sapphire: 'elite',
+};
+
 export function Hud({ onScorePress, onAsk }: { onScorePress?: () => void; onAsk?: () => void }) {
   const c = useColors();
   const insets = useSafeAreaInsets();
@@ -36,28 +45,48 @@ export function Hud({ onScorePress, onAsk }: { onScorePress?: () => void; onAsk?
         borderBottomColor: c.hairline,
       }}
     >
+      {/*
+        the number the product sells. the comment here used to say "struck in
+        its band" while the chip was flat text on a 12% tint of it — a pale
+        sand pill carrying the one number amp is selling. now it is actually
+        struck: the band lit by the same lamp as every metal, its own colour
+        thrown on the page beneath it, and the numeral in ink rather than in
+        the band colour it is sitting on.
+      */}
       <Touch
         onPress={onScorePress}
         haptic="selection"
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: space.sm,
-          paddingLeft: space.md,
-          paddingRight: space.lg,
-          paddingVertical: 7,
-          borderRadius: radius.pill,
-          backgroundColor: rated ? c.score[band] + '1F' : c.fill,
-        }}
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: space.sm,
+            paddingLeft: space.lg,
+            paddingRight: space.lg,
+            paddingVertical: 8,
+            borderRadius: radius.pill,
+            overflow: 'hidden',
+            backgroundColor: rated ? c.score[band] : c.fill,
+          },
+          rated
+            ? {
+                shadowColor: c.score[band],
+                shadowOpacity: 0.42,
+                shadowRadius: 12,
+                shadowOffset: { width: 0, height: 5 },
+                elevation: 5,
+              }
+            : {},
+        ]}
       >
-        {/* the number the product sells, struck in its band */}
+        {rated && <SheenFill color={c.score[band]} />}
         <GlossText
-          color={rated ? c.score[band] : c.textTertiary}
+          color={rated ? inkFor(c.score[band]) : c.textTertiary}
           style={{ fontFamily: font.black, fontSize: 23, letterSpacing: -1 }}
         >
           {rated ? String(g.ampScore) : '—'}
         </GlossText>
-        <Text variant="tab" tone="tertiary">
+        <Text variant="tab" color={rated ? withAlpha(inkFor(c.score[band]), 0.72) : c.textTertiary}>
           amp score
         </Text>
       </Touch>
@@ -71,8 +100,10 @@ export function Hud({ onScorePress, onAsk }: { onScorePress?: () => void; onAsk?
         </Text>
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-        <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: league.colour }} />
+      {/* bronze, silver and gold are rungs on the metals ladder — they were
+          being drawn as flat brown, grey and yellow dots. */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <MetalCircle size={12} metal={LEAGUE_METAL[league.key]} />
         <Text variant="caption" tone="secondary">
           {league.label}
         </Text>

@@ -1,6 +1,7 @@
 /**
  * amp design tokens
- * one source of truth for colour, type, space, radius, motion.
+ * one source of truth for colour, type, space and radius. motion lives next
+ * door in ./motion.ts.
  * nothing in the app should hardcode a hex value.
  */
 
@@ -41,7 +42,7 @@ export const light = {
   fill: '#EFEFEC', // inert control backgrounds (segmented track, chips)
   fillPressed: '#E5E5E1',
   fillStrong: '#DCDCD7', // locked path nodes, disabled discs
-  hairline: 'rgba(0,0,0,0.07)',
+  hairline: 'rgba(0,0,0,0.1)',
   scrim: 'rgba(246,246,243,0.82)', // behind blurred chrome
 
   text: '#0C0C0D',
@@ -73,7 +74,7 @@ export const dark = {
   fill: '#232326',
   fillPressed: '#2C2C30',
   fillStrong: '#34343A',
-  hairline: 'rgba(255,255,255,0.09)',
+  hairline: 'rgba(255,255,255,0.13)',
   scrim: 'rgba(14,14,16,0.82)',
 
   text: '#F5F5F4',
@@ -199,16 +200,45 @@ export const radius = {
   pill: 999,
 } as const;
 
-// apple shadows are wide + faint, never dark + tight.
+/**
+ * the altitude ladder.
+ *
+ * apple shadows are wide + faint, never dark + tight — but there used to be
+ * exactly one of them, at 0.05 opacity, on every card in the product. a hero
+ * and a list row sat at the same height on the same ground with the same
+ * almost-invisible shadow, which is what made a screen read as a stack of
+ * white rectangles rather than as objects. material weight is how an interface
+ * says what matters; it needs more than one rung to say anything.
+ *
+ * use the names, and use them sparingly: at most one `hero` per screen.
+ */
 export const elevation = {
   none: {},
+  /** a row resting on the page. barely off it, but off it. */
+  flat: {
+    shadowColor: light.shadow,
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
+  },
+  /** the default surface. */
   card: {
     shadowColor: light.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 3,
   },
+  /** the one thing on the screen you came for. */
+  hero: {
+    shadowColor: light.shadow,
+    shadowOpacity: 0.13,
+    shadowRadius: 30,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 10,
+  },
+  /** chrome floating over content — the tab bar. */
   raised: {
     shadowColor: light.shadow,
     shadowOpacity: 0.1,
@@ -218,13 +248,25 @@ export const elevation = {
   },
 } as const;
 
-export const motion = {
-  // ios-ish spring. used for every press + tab change.
-  spring: { damping: 18, stiffness: 240, mass: 0.7 },
-  fast: 140,
-  base: 220,
-  pressScale: 0.97,
-} as const;
+/**
+ * the light a metal throws on the surface under it.
+ *
+ * every metal already carries a `glow` — it has since the metals were written,
+ * and nothing has ever used it, so every lit plate in the product floated over
+ * a grey page casting either nothing or a generic black smudge. a struck metal
+ * that does not tint the ground beneath it is a picture of metal.
+ *
+ * this is the one shadow in the app that is allowed to have a colour.
+ */
+export function metalGlow(metal: MetalId, height: 'card' | 'hero' = 'hero') {
+  const lift = height === 'hero'
+    ? { shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, elevation: 10 }
+    : { shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 4 };
+  return { shadowColor: METALS[metal].glow, shadowOpacity: 1, ...lift };
+}
+
+// motion moved to ./motion.ts — springs are described in damping + response
+// there, not in stiffness/damping/mass here.
 
 /* ------------------------------------------------------------- helpers */
 

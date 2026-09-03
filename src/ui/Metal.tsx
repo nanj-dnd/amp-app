@@ -226,6 +226,18 @@ export function SheenBar({
 }
 
 /** rgba from a hex, for laying ink over a metal at partial strength. */
+/**
+ * the only colour allowed on top of a struck surface: a deep tint of itself.
+ *
+ * the metals each carry a hand-picked `ink` for this. the score bands do not —
+ * they were only ever used as flat text — so anything struck in a band derives
+ * its ink the same way, and for the same reason: white on a lit surface is
+ * where premium turns into cheap.
+ */
+export function inkFor(hex: string): string {
+  return shift(hex, -0.68);
+}
+
 export function withAlpha(hex: string, a: number): string {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;

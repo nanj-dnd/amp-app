@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, ScrollView, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Hud } from '../ui/Hud';
@@ -11,7 +11,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Sheet } from '../ui/Sheet';
 import { BatIcon, BallIcon } from '../ui/Icons';
-import { useColors, space, radius, font, bandFor, METALS } from '../theme';
+import { useColors, space, radius, font, bandFor, METALS, metalGlow, springConfig, useReduceMotion } from '../theme';
 import { TAB_BAR_SPACE } from '../ui/TabBar';
 import { useStore } from '../state/store';
 import { totalRuns, wickets, oversText } from '../match/engine';
@@ -103,31 +103,47 @@ export function RoadScreen({ go }: { go: (r: string) => void }) {
 
         {/* the destination, stated once */}
         <View style={{ paddingHorizontal: space.gutter, paddingTop: space.lg, paddingBottom: space.xl }}>
-          <Card style={{ backgroundColor: METALS.brand.base, gap: space.md }}>
+          {/* the one hero on this screen. it is struck metal, so its shadow is
+              the light it throws rather than a grey smudge — the metals have
+              carried a `glow` since they were written and nothing had ever
+              spent it. */}
+          <Card level="hero" style={[{ backgroundColor: METALS.brand.base, gap: space.md }, metalGlow('brand')]}>
             <MetalFill metal="brand" />
-            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: space.md }}>
-              <View style={{ flex: 1, gap: 3 }}>
-                {/* ink, not white: the lit half of a metal is too bright to
-                    carry white type, and white on metal is the thing that makes
-                    it look cheap everywhere else too */}
-                <Text variant="eyebrow" color={withAlpha(METALS.brand.ink, 0.62)}>
-                  your goal
-                </Text>
-                <Text variant="heading" color={METALS.brand.ink}>
+            {/* ink, not white: the lit half of a metal is too bright to carry
+                white type, and white on metal is the thing that makes it look
+                cheap everywhere else too */}
+            <View style={{ gap: 3 }}>
+              <Text variant="eyebrow" color={withAlpha(METALS.brand.ink, 0.62)}>
+                your goal
+              </Text>
+
+              {/*
+                the countdown used to be its own right-hand stack, top-aligned
+                against a column that starts with an 11pt eyebrow. a 30pt
+                numeral and an 11pt label have nothing in common at the top of
+                their line boxes, so the number floated: its cap sat above "your
+                goal" and its baseline landed between two lines on the left,
+                touching neither.
+
+                on one shared baseline the two halves finally read as one
+                sentence — the goal, and how long is left to reach it — which is
+                what the card is for.
+              */}
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.sm }}>
+                <Text variant="heading" color={METALS.brand.ink} style={{ flex: 1 }} numberOfLines={1}>
                   {goal ? `${formatMetric(goal.to)} ${goal.unit}` : 'set a goal'}
                 </Text>
-                <Text variant="callout" color={withAlpha(METALS.brand.ink, 0.8)} numberOfLines={2}>
-                  {goal ? goalHeadline(goal) : 'pick a target and a date in your profile'}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontFamily: font.black, fontSize: 30, letterSpacing: -1.4, color: METALS.brand.ink }}>
+                <Text variant="scoreSm" color={METALS.brand.ink}>
                   {String(weeksLeft)}
                 </Text>
-                <Text variant="tab" color={withAlpha(METALS.brand.ink, 0.7)}>
+                <Text variant="caption" color={withAlpha(METALS.brand.ink, 0.7)}>
                   {weeksLeft === 1 ? 'week left' : 'weeks left'}
                 </Text>
               </View>
+
+              <Text variant="callout" color={withAlpha(METALS.brand.ink, 0.8)} numberOfLines={2}>
+                {goal ? goalHeadline(goal) : 'pick a target and a date in your profile'}
+              </Text>
             </View>
 
             <View style={{ height: 6, borderRadius: 3, backgroundColor: withAlpha(METALS.brand.deep, 0.3), overflow: 'hidden' }}>
@@ -164,7 +180,7 @@ export function RoadScreen({ go }: { go: (r: string) => void }) {
         {/* what the next block is pointed at, so the plan reads forward */}
         {plan[currentIdx + 1] && (
           <View style={{ paddingHorizontal: space.gutter, paddingTop: space.xl }}>
-            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+            <Card level="flat" style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
               <Ionicons name="arrow-forward-circle-outline" size={20} color={c.textTertiary} />
               <Text variant="callout" style={{ flex: 1 }} numberOfLines={1}>
                 {`next · ${plan[currentIdx + 1].focus}`}
@@ -175,6 +191,56 @@ export function RoadScreen({ go }: { go: (r: string) => void }) {
       </ScrollView>
 
       {openWeek && <WeekSheet week={openWeek} onClose={() => setOpenWeek(null)} />}
+    </View>
+  );
+}
+
+/**
+ * the disc on a weekly action, and the one completion beat in the loop.
+ *
+ * ticking something off is the whole reward for a week's work, and it used to
+ * happen between two frames: the glyph was a checkmark, the disc was green, and
+ * nothing marked the moment it changed. the mark springs in with a bounce it
+ * has actually earned — this is a thing landing, not a panel being repositioned.
+ *
+ * it only fires on the *transition*. an action that was already complete when
+ * the screen opened is history, not news, and a road full of discs popping on
+ * every visit would say nothing at all.
+ */
+function Tick({ complete, icon }: { complete: boolean; icon: keyof typeof Ionicons.glyphMap }) {
+  const c = useColors();
+  const reduce = useReduceMotion();
+  const s = useRef(new Animated.Value(1)).current;
+  const was = useRef(complete);
+
+  useEffect(() => {
+    const justLanded = complete && !was.current;
+    was.current = complete;
+    if (!justLanded || reduce) return;
+    s.setValue(0.6);
+    Animated.spring(s, { toValue: 1, ...springConfig('flick') }).start();
+  }, [complete, reduce, s]);
+
+  return (
+    <View
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: complete ? METALS.brand.base : c.fill,
+        overflow: 'hidden',
+      }}
+    >
+      {complete && <MetalFill metal="brand" />}
+      <Animated.View style={{ transform: [{ scale: s }] }}>
+        <Ionicons
+          name={complete ? 'checkmark' : icon}
+          size={18}
+          color={complete ? METALS.brand.ink : c.textSecondary}
+        />
+      </Animated.View>
     </View>
   );
 }
@@ -202,7 +268,7 @@ function ThisWeek({ week, onAction }: { week: PlanWeek; onAction: (id: ActionKin
         </Text>
       </View>
 
-      <Card padded={false} style={{ overflow: 'hidden' }}>
+      <Card padded={false} level="flat" style={{ overflow: 'hidden' }}>
         {week.actions.map((a, i) => {
           const n = countOf(logged, a.id);
           const complete = n >= a.target;
@@ -222,24 +288,7 @@ function ThisWeek({ week, onAction }: { week: PlanWeek; onAction: (id: ActionKin
                 borderTopColor: c.hairline,
               }}
             >
-              <View
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 18,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: complete ? METALS.brand.base : c.fill,
-                  overflow: 'hidden',
-                }}
-              >
-                {complete && <MetalFill metal="brand" />}
-                <Ionicons
-                  name={complete ? 'checkmark' : ACTION_ICON[a.id]}
-                  size={18}
-                  color={complete ? METALS.brand.ink : c.textSecondary}
-                />
-              </View>
+              <Tick complete={complete} icon={ACTION_ICON[a.id]} />
 
               <View style={{ flex: 1, gap: 1 }}>
                 <Text variant="bodyStrong">{a.label}</Text>

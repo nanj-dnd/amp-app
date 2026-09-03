@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Animated, Easing } from 'react-native';
 import { Wordmark } from '../ui/Logo';
 import { Text } from '../ui/Text';
-import { useColors, space, font } from '../theme';
+import { useColors, space, font, useReduceMotion } from '../theme';
 
 /**
  * held for a beat while the store hydrates. the mark draws itself in rather
@@ -10,6 +10,7 @@ import { useColors, space, font } from '../theme';
  */
 export function SplashScreen({ onDone, minMs = 1400 }: { onDone: () => void; minMs?: number }) {
   const c = useColors();
+  const reduce = useReduceMotion();
   const rise = useRef(new Animated.Value(0)).current;
   const word = useRef(new Animated.Value(0)).current;
   const out = useRef(new Animated.Value(1)).current;
@@ -30,6 +31,8 @@ export function SplashScreen({ onDone, minMs = 1400 }: { onDone: () => void; min
     };
 
     const seq = Animated.sequence([
+      // the one scripted overshoot left in the app. a splash is a brand moment
+      // rather than a control, and nothing here is waiting on the athlete.
       Animated.timing(rise, { toValue: 1, duration: 620, easing: Easing.out(Easing.back(1.4)), useNativeDriver: true }),
       Animated.timing(word, { toValue: 1, duration: 340, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       Animated.delay(Math.max(0, minMs - 960)),
@@ -61,10 +64,15 @@ export function SplashScreen({ onDone, minMs = 1400 }: { onDone: () => void; min
       <Animated.View
         style={{
           opacity: rise,
-          transform: [
-            { scale: rise.interpolate({ inputRange: [0, 1], outputRange: [0.82, 1] }) },
-            { translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) },
-          ],
+          // reduced motion keeps the fade and drops the travel. the setting
+          // resolves a frame or two after mount, which is why this is read at
+          // render time and not baked into the sequence above.
+          transform: reduce
+            ? []
+            : [
+                { scale: rise.interpolate({ inputRange: [0, 1], outputRange: [0.82, 1] }) },
+                { translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) },
+              ],
         }}
       >
         <Wordmark width={168} />

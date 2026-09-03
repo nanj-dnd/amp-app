@@ -30,7 +30,9 @@ points, and nothing else in the app has a currency.
 ## where things live
 
 ```
-src/theme/tokens.ts    colour, type, spacing, radii, motion — the only file with hex in it
+src/theme/tokens.ts    colour, type, spacing, radii — the only file with hex in it
+src/theme/motion.ts    springs, momentum projection, rubber-banding — the only file with physics
+src/theme/motion.test.ts  assertions for the above
 src/state/types.ts     Identity + CricketProfile + Goal + Progression + GymState
 src/state/store.tsx    asyncstorage persistence, streak rule, weekly action log
 src/plan.ts            goal templates + buildPlan(profile) -> one node per week
@@ -49,6 +51,41 @@ src/ui/*               the component library — nothing outside ui/ styles from
 src/screens/*          road · game iq · record · gym · you, plus report and onboarding
 App.tsx                fonts, providers, splash -> onboarding -> tabs
 ```
+
+## how things move
+
+springs are described in two numbers, never three. `src/theme/motion.ts` takes a
+**damping ratio** (1.0 settles dead, below 1.0 bounces) and a **response** (how
+many seconds it takes to get there) and converts them to the stiffness/damping/
+mass react native wants. nobody can look at `{ damping: 18, stiffness: 240 }` and
+tell you whether it overshoots — which is how the old default came to bounce on
+every single tap in the app.
+
+the rule the presets encode: **critically damped unless the gesture carried
+momentum.** a press is not a throw, so `press`, `ui` and `move` settle without
+overshoot. `sheet` and `flick` bounce, because by the time they run you have
+actually thrown something.
+
+a gesture that can be started can be finished, reversed and caught. the bottom
+sheet is the worked example:
+
+- it tracks your finger 1:1, and resists instead of stopping when you push it
+  above its resting place (`rubberband`)
+- on release it lands where the flick was *heading* (`project`, then `snapTo`),
+  not at the nearest edge — so a hard flick from barely-moved dismisses, and a
+  drag most of the way down thrown back up returns
+- the release velocity is handed to the spring, so there is no seam between the
+  drag and the animation. `handoff()` exists because PanResponder measures px/ms
+  and `Animated.spring` wants px/s, and getting that wrong is a 1000x error that
+  just looks like a sluggish sheet
+- you can grab it mid-flight; the animation always restarts from where the sheet
+  actually is on screen
+- it leaves along the path it arrived on. it used to slide up and then vanish
+  with the modal's cross-fade, which is the one thing a sheet must not do
+
+`useReduceMotion()` is honoured in the splash, the greeting, the sheet, every
+press and the tab bar. it never means *no* feedback — it means the fade without
+the travel, and no overshoot.
 
 ## the road
 

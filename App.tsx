@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { View, StatusBar, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, StatusBar, StyleSheet, Animated } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as ExpoSplash from 'expo-splash-screen';
 import {
@@ -11,7 +11,7 @@ import {
   Archivo_800ExtraBold,
 } from '@expo-google-fonts/archivo';
 
-import { ThemeProvider, useColors } from './src/theme';
+import { ThemeProvider, useColors, motion, useReduceMotion } from './src/theme';
 import { StoreProvider, useStore } from './src/state/store';
 import { TabBar, type TabKey } from './src/ui/TabBar';
 import { ActionSheet } from './src/ui/ActionSheet';
@@ -43,6 +43,40 @@ function Tabs() {
   const [tab, setTab] = useState<TabKey>('road');
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [adding, setAdding] = useState(false);
+  const reduce = useReduceMotion();
+
+  /**
+   * overlays normally swap instantly, and should: opening one from the [+] is
+   * already covered by the action sheet leaving, and closing one back to the
+   * tabs wants to be immediate.
+   *
+   * the exception is one overlay replacing another, which happens exactly once
+   * in the product and at the moment that matters most — record hands over to
+   * report when the analysis finishes. that cut lands on a fully drawn score,
+   * which is the funnel's whole payoff arriving as a jump. the bridge costs
+   * nothing new: `Record` already spends 1.6s waiting, so the fade comes out of
+   * time that is being spent anyway.
+   */
+  const [shown, setShown] = useState<Overlay>(null);
+  const fade = useRef(new Animated.Value(1)).current;
+  const prev = useRef<Overlay>(null);
+
+  useEffect(() => {
+    const from = prev.current;
+    prev.current = overlay;
+    const bridging = !!from && !!overlay && from.name !== overlay.name;
+
+    if (!bridging || reduce) {
+      setShown(overlay);
+      fade.setValue(1);
+      return;
+    }
+    Animated.timing(fade, { toValue: 0, duration: motion.fast, useNativeDriver: true }).start(({ finished }) => {
+      if (!finished) return;
+      setShown(overlay);
+      Animated.timing(fade, { toValue: 1, duration: motion.base, useNativeDriver: true }).start();
+    });
+  }, [overlay, reduce, fade]);
 
   const go = (route: string) => {
     const [name, arg] = route.split(':');
@@ -64,7 +98,10 @@ function Tabs() {
       {tab === 'progress' && <ProgressScreen go={go} />}
       {tab === 'you' && <YouScreen go={go} />}
 
-      {overlay === null && <TabBar active={tab} onChange={(k) => (k === 'add' ? setAdding(true) : setTab(k))} />}
+      {/* keyed off `shown`, not `overlay` — `shown` lags by a frame while the
+          effect below decides whether to bridge, and hiding the bar off the
+          leading value flashes a tab screen with no tab bar for that frame. */}
+      {shown === null && <TabBar active={tab} onChange={(k) => (k === 'add' ? setAdding(true) : setTab(k))} />}
 
       {adding && (
         <ActionSheet
@@ -94,18 +131,26 @@ function Tabs() {
         />
       )}
 
-      {overlay && (
+      {shown && (
+        // the backdrop stays opaque and only the screens inside it cross-fade.
+        // fading the whole overlay let the tab screen behind it composite
+        // through the middle of the handover, so for a beat you were looking at
+        // progress or the road — it read as going back and then forward again.
+        // dipping through the page's own background instead keeps the two
+        // overlays the only two things in the transition.
         <View style={[StyleSheet.absoluteFill, { backgroundColor: c.bg }]}>
-          {overlay.name === 'record' && <RecordScreen go={go} onClose={back} />}
-          {overlay.name === 'report' && (
+        <Animated.View style={{ flex: 1, opacity: fade }}>
+          {shown.name === 'record' && <RecordScreen go={go} onClose={back} />}
+          {shown.name === 'report' && (
             <ReportScreen onClose={() => { back(); setTab('road'); }} onAsk={() => setOverlay({ name: 'ask' })} />
           )}
-          {overlay.name === 'thread' && <ThreadScreen back={back} />}
-          {overlay.name === 'ask' && <AskScreen go={go} onClose={back} />}
-          {overlay.name === 'gym' && <GymScreen go={go} onClose={back} />}
-          {overlay.name === 'workout' && <WorkoutScreen routineId={overlay.arg} onClose={() => setOverlay({ name: 'gym' })} />}
-          {overlay.name === 'match' && <MatchFlow matchId={overlay.arg} onExit={back} />}
-          {overlay.name === 'card' && <ShareCardScreen onClose={back} />}
+          {shown.name === 'thread' && <ThreadScreen back={back} />}
+          {shown.name === 'ask' && <AskScreen go={go} onClose={back} />}
+          {shown.name === 'gym' && <GymScreen go={go} onClose={back} />}
+          {shown.name === 'workout' && <WorkoutScreen routineId={shown.arg} onClose={() => setOverlay({ name: 'gym' })} />}
+          {shown.name === 'match' && <MatchFlow matchId={shown.arg} onExit={back} />}
+          {shown.name === 'card' && <ShareCardScreen onClose={back} />}
+        </Animated.View>
         </View>
       )}
     </View>

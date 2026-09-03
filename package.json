@@ -29,13 +29,14 @@
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "test:engine": "esbuild src/match/engine.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/engine.test.mjs --log-level=error && node node_modules/.cache/engine.test.mjs",
     "test:indicators": "esbuild src/indicators.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/indicators.test.mjs --log-level=error && node node_modules/.cache/indicators.test.mjs",
     "test:insights": "esbuild src/insights.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/insights.test.mjs --log-level=error && node node_modules/.cache/insights.test.mjs",
-    "test": "npm run test:engine && npm run test:insights && npm run test:indicators"
+    "test": "npm run test:engine && npm run test:insights && npm run test:indicators && npm run test:motion",
+    "test:motion": "esbuild src/theme/motion.test.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/motion.test.mjs --log-level=error && node node_modules/.cache/motion.test.mjs"
   },
   "private": true
 }

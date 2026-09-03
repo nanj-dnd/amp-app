@@ -4,31 +4,47 @@ import { useColors, radius, space, elevation } from '../theme';
 import { Text } from './Text';
 import { Touch } from './Pressable';
 
+/**
+ * a surface, at one of three altitudes.
+ *
+ * the old card had one shadow and a `flat` escape hatch for putting cards
+ * inside cards — which is the tell that hierarchy was being expressed by
+ * nesting boxes rather than by weight. nothing ever used the hatch, and every
+ * surface in the product came out at the same height with the same
+ * near-invisible shadow, so a screen read as a stack of white rectangles.
+ *
+ *   flat   a row resting on the page. no shadow, edge does the work.
+ *   card   the default.
+ *   hero   the one thing you opened the screen for. at most one per screen.
+ *
+ * a hero drops the border: a surface lifted that far off the page is described
+ * by its shadow, and outlining it as well is the mushy both-at-once that made
+ * edges read as neither.
+ */
 export function Card({
   children,
   style,
   onPress,
   padded = true,
-  flat = false,
+  level = 'card',
 }: {
   children: React.ReactNode;
   style?: ViewStyle | ViewStyle[];
   onPress?: () => void;
   padded?: boolean;
-  /** flat drops the shadow — for cards nested inside another card. */
-  flat?: boolean;
+  level?: 'flat' | 'card' | 'hero';
 }) {
   const c = useColors();
   const base: ViewStyle[] = [
     {
       backgroundColor: c.surface,
       borderRadius: radius.lg,
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth: level === 'hero' ? 0 : StyleSheet.hairlineWidth,
       borderColor: c.hairline,
       padding: padded ? space.xl : 0,
       overflow: 'hidden',
     },
-    !flat && (elevation.card as ViewStyle),
+    elevation[level] as ViewStyle,
     style as ViewStyle,
   ].filter(Boolean) as ViewStyle[];
 

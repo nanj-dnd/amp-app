@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from './Text';
 import { Touch } from './Pressable';
-import { Sheet } from './Sheet';
+import { Sheet, useSheetDismiss } from './Sheet';
 import { useColors, space, radius } from '../theme';
 
 export type Action = {
@@ -28,16 +28,29 @@ export function ActionSheet({
   onPick: (id: string) => void;
   onClose: () => void;
 }) {
-  const c = useColors();
-
   return (
     <Sheet onClose={onClose}>
+      <Actions actions={actions} onPick={onPick} />
+    </Sheet>
+  );
+}
+
+/**
+ * inside the sheet, so it can close it along the same path a drag would —
+ * picking an action should look like pushing the sheet away, not like the
+ * sheet being deleted.
+ */
+function Actions({ actions, onPick }: { actions: Action[]; onPick: (id: string) => void }) {
+  const c = useColors();
+  const dismiss = useSheetDismiss();
+
+  return (
       <View style={{ gap: space.sm }}>
         {actions.map((a) => (
           <Touch
             key={a.id}
             haptic="light"
-            onPress={() => onPick(a.id)}
+            onPress={() => dismiss(() => onPick(a.id))}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -73,6 +86,5 @@ export function ActionSheet({
           </Touch>
         ))}
       </View>
-    </Sheet>
   );
 }

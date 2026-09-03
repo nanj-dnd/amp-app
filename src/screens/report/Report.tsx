@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { Card, Divider } from '../../ui/Card';
 import { IconButton } from '../../ui/Button';
 import { ScoreDial } from '../../ui/ScoreDial';
 import { Sheet } from '../../ui/Sheet';
+import { Reveal, Chevron } from '../../ui/Reveal';
 import { useColors, space, radius, font, bandFor } from '../../theme';
 import {
   resultOf,
@@ -63,6 +64,16 @@ export function ReportScreen({
   const [openKpi, setOpenKpi] = useState<string | null>(null);
   const [openDrill, setOpenDrill] = useState<Drill | null>(null);
   const [openRisk, setOpenRisk] = useState(false);
+
+  // the dial sweeps once, when the report is first opened. <Summary> is
+  // remounted every time you come back from the ratings or video tab, so
+  // without this the score would re-reveal itself three or four times a visit
+  // and stop meaning anything the first time.
+  const swept = useRef(false);
+  const sweep = !swept.current;
+  useEffect(() => {
+    swept.current = true;
+  }, []);
 
   const tier = tierOf(report);
   const index = useMemo(() => kpiIndex(tier), [tier]);
@@ -141,6 +152,7 @@ export function ReportScreen({
             report={report}
             index={index}
             result={result}
+            sweep={sweep}
             onKpi={setOpenKpi}
             onDrill={setOpenDrill}
             onRisk={() => setOpenRisk(true)}
@@ -165,6 +177,7 @@ function Summary({
   report,
   index,
   result,
+  sweep,
   onKpi,
   onDrill,
   onRisk,
@@ -172,6 +185,7 @@ function Summary({
   report: Report;
   index: ReturnType<typeof kpiIndex>;
   result: ReturnType<typeof resultOf>;
+  sweep: boolean;
   onKpi: (id: string) => void;
   onDrill: (d: Drill) => void;
   onRisk: () => void;
@@ -191,7 +205,7 @@ function Summary({
     <>
       {/* the number, the trend and the coverage — one card, not three */}
       <Card style={{ alignItems: 'center', paddingVertical: space.xxl, gap: space.xl }}>
-        <ScoreDial value={result.overall ?? 0} size={186} />
+        <ScoreDial value={result.overall ?? 0} size={186} animate={sweep} />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
           <Ionicons name={up ? 'caret-up' : 'caret-down'} size={13} color={up ? c.score.good : c.score.poor} />
@@ -440,11 +454,11 @@ function Ratings({
               >
                 {s.score === null ? '—' : String(s.score)}
               </GlossText>
-              <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={15} color={c.textTertiary} />
+              <Chevron open={expanded} color={c.textTertiary} />
             </Touch>
 
-            {expanded &&
-              s.kpis.map((k) => {
+            <Reveal open={expanded}>
+              {s.kpis.map((k) => {
                 const out = k.score === null;
                 const pct = k.score === null ? 0 : k.score * 10;
                 return (
@@ -489,6 +503,7 @@ function Ratings({
                   </Touch>
                 );
               })}
+            </Reveal>
           </View>
         );
       })}
